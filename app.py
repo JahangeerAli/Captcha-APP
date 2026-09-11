@@ -38,7 +38,7 @@ st.markdown(
         color: #f8fafc !important;
     }
 
-    /* --- LARGER & BOLDER TOP BANNER --- */
+    /* --- TOP BANNER --- */
     .top-banner {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         padding: 35px 45px;
@@ -133,34 +133,40 @@ st.markdown(
         background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* --- 60px MASSIVE & HIGHLY HIGHLIGHTED RADIO BUTTONS --- */
+    /* --- FORCED BOLD & LARGE RADIO BUTTON TABS --- */
     div.row-widget.stRadio > div[role="radiogroup"] {
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
-        padding: 30px 40px !important;
-        border-radius: 28px !important;
-        border: 4px solid #38bdf8 !important;
-        box-shadow: 0 15px 45px rgba(56, 189, 248, 0.35) !important;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        padding: 25px 35px !important;
+        border-radius: 24px !important;
+        border: 4px solid #f59e0b !important;
+        box-shadow: 0 15px 40px rgba(245, 158, 11, 0.3) !important;
         display: flex !important;
-        gap: 40px !important;
+        gap: 30px !important;
     }
     
     div.row-widget.stRadio label {
-        font-size: 60px !important;
-        font-weight: 900 !important;
-        color: #ffffff !important;
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-        padding: 30px 60px !important;
-        border-radius: 22px !important;
-        border: 4px solid rgba(56, 189, 248, 0.7) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
+        background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
+        padding: 18px 30px !important;
+        border-radius: 16px !important;
+        border: 3px solid #38bdf8 !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+        cursor: pointer !important;
         transition: all 0.3s ease-in-out !important;
     }
 
     div.row-widget.stRadio label:hover {
-        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
-        border-color: #38bdf8 !important;
-        transform: translateY(-5px);
+        transform: translateY(-4px);
         box-shadow: 0 12px 35px rgba(56, 189, 248, 0.6) !important;
+        background: linear-gradient(135deg, #0369a1 100%, #1e40af 0%) !important;
+    }
+
+    /* Target inner text elements to force 36px bold white text */
+    div.row-widget.stRadio label p, 
+    div.row-widget.stRadio label span,
+    div.row-widget.stRadio div {
+        font-size: 36px !important;
+        font-weight: 900 !important;
+        color: #ffffff !important;
     }
 
     .footer {
