@@ -49,7 +49,7 @@ st.markdown(
         align-items: center;
         margin-bottom: 35px;
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(256, 256, 256, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.15);
     }
     
     .brand-title {
@@ -133,32 +133,34 @@ st.markdown(
         background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* --- HUGE & CLEAR TAB-STYLE RADIO BUTTONS --- */
+    /* --- ULTRA-LARGE, COLORFUL & HIGHLIGHTED RADIO BUTTONS --- */
     div.row-widget.stRadio > div[role="radiogroup"] {
-        background: rgba(30, 41, 59, 0.9) !important;
-        padding: 15px 20px !important;
-        border-radius: 20px !important;
-        border: 2px solid rgba(56, 189, 248, 0.3) !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+        padding: 20px 25px !important;
+        border-radius: 24px !important;
+        border: 3p solid #38bdf8 !important;
+        box-shadow: 0 12px 35px rgba(56, 189, 248, 0.25) !important;
         display: flex !important;
-        gap: 20px !important;
+        gap: 25px !important;
     }
     
     div.row-widget.stRadio label {
-        font-size: 22px !important;
+        font-size: 26px !important;
         font-weight: 900 !important;
         color: #ffffff !important;
-        background: rgba(255, 255, 255, 0.08) !important;
-        padding: 16px 35px !important;
-        border-radius: 14px !important;
-        border: 2px solid rgba(255, 255, 255, 0.15) !important;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+        padding: 20px 40px !important;
+        border-radius: 18px !important;
+        border: 3px solid rgba(56, 189, 248, 0.5) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
         transition: all 0.3s ease-in-out !important;
     }
 
     div.row-widget.stRadio label:hover {
-        background: rgba(56, 189, 248, 0.3) !important;
+        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
         border-color: #38bdf8 !important;
-        transform: translateY(-3px);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.5) !important;
     }
 
     .footer {
