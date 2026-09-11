@@ -6,24 +6,50 @@ import string
 import io
 import base64
 import re
+import os
 
 
 # =========================================================
-# PAGE CONFIG
+# CONFIGURATION
 # =========================================================
 
 st.set_page_config(
     page_title="Can AI Beat You?",
     page_icon="🧠",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-
-# =========================================================
-# CONSTANTS
-# =========================================================
-
 GROQ_MODEL = "qwen/qwen3.6-27b"
+
+
+# =========================================================
+# SESSION STATE
+# =========================================================
+
+defaults = {
+    "human_score": 0,
+    "ai_score": 0,
+    "round_count": 0,
+
+    "captcha_text": None,
+    "captcha_image": None,
+    "captcha_human_done": False,
+    "captcha_ai_done": False,
+
+    "animal_grid": None,
+    "animal_target": None,
+    "animal_correct": [],
+    "animal_human_done": False,
+    "animal_ai_done": False,
+
+    "api_tested": False,
+}
+
+for key, value in defaults.items():
+
+    if key not in st.session_state:
+        st.session_state[key] = value
 
 
 # =========================================================
@@ -34,68 +60,493 @@ st.markdown(
     """
     <style>
 
-    .main {
-        background-color: #f7f8fc;
+    /* ================================
+       GENERAL
+       ================================ */
+
+    .stApp {
+        background:
+            radial-gradient(
+                circle at top left,
+                rgba(99, 102, 241, 0.10),
+                transparent 30%
+            ),
+            radial-gradient(
+                circle at top right,
+                rgba(168, 85, 247, 0.10),
+                transparent 30%
+            ),
+            #f8fafc;
     }
 
-    .top-box {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        padding: 25px;
-        border-radius: 15px;
+    .block-container {
+        max-width: 1250px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+
+    /* ================================
+       SIDEBAR
+       ================================ */
+
+    section[data-testid="stSidebar"] {
+        background:
+            linear-gradient(
+                180deg,
+                #111827 0%,
+                #1e1b4b 100%
+            );
+    }
+
+    section[data-testid="stSidebar"] * {
+        color: #f8fafc !important;
+    }
+
+    section[data-testid="stSidebar"] input {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border-radius: 10px !important;
+    }
+
+
+    /* ================================
+       HERO
+       ================================ */
+
+    .hero {
+        position: relative;
+        overflow: hidden;
+
+        padding: 42px 45px;
+
+        border-radius: 28px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #4f46e5 0%,
+                #7c3aed 55%,
+                #9333ea 100%
+            );
+
+        box-shadow:
+            0 20px 50px rgba(79, 70, 229, 0.25);
+
         color: white;
-        margin-bottom: 20px;
+
+        margin-bottom: 28px;
     }
 
-    .title {
-        font-size: 42px;
+    .hero::after {
+        content: "";
+        position: absolute;
+
+        width: 260px;
+        height: 260px;
+
+        right: -90px;
+        top: -90px;
+
+        border-radius: 50%;
+
+        background: rgba(255,255,255,0.10);
+    }
+
+    .hero-badge {
+        display: inline-block;
+
+        padding: 7px 14px;
+
+        border-radius: 50px;
+
+        background: rgba(255,255,255,0.16);
+
+        font-size: 13px;
+        font-weight: 700;
+
+        margin-bottom: 15px;
+
+        letter-spacing: 0.4px;
+    }
+
+    .hero-title {
+        font-size: 46px;
+        font-weight: 850;
+
+        line-height: 1.1;
+
+        margin-bottom: 12px;
+
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-subtitle {
+        font-size: 18px;
+
+        line-height: 1.65;
+
+        max-width: 760px;
+
+        color: rgba(255,255,255,0.90);
+
+        position: relative;
+        z-index: 2;
+    }
+
+
+    /* ================================
+       INFORMATION CARDS
+       ================================ */
+
+    .info-card {
+        background: rgba(255,255,255,0.92);
+
+        border: 1px solid #e5e7eb;
+
+        border-radius: 18px;
+
+        padding: 20px;
+
+        box-shadow:
+            0 8px 25px rgba(15,23,42,0.06);
+
+        min-height: 105px;
+    }
+
+    .info-label {
+        color: #64748b;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 1px;
+
+        margin-bottom: 7px;
+    }
+
+    .info-value {
+        color: #111827;
+
+        font-size: 19px;
+
+        font-weight: 750;
+    }
+
+
+    /* ================================
+       SCORE CARDS
+       ================================ */
+
+    .score-card {
+        background: white;
+
+        border-radius: 20px;
+
+        padding: 22px;
+
+        border: 1px solid #e5e7eb;
+
+        box-shadow:
+            0 8px 25px rgba(15,23,42,0.07);
+
+        text-align: center;
+
+        transition: transform 0.2s ease;
+    }
+
+    .score-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .score-icon {
+        font-size: 27px;
+
+        margin-bottom: 5px;
+    }
+
+    .score-label {
+        color: #64748b;
+
+        font-size: 13px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 1px;
+    }
+
+    .score-number {
+        color: #111827;
+
+        font-size: 36px;
+
+        font-weight: 850;
+
+        margin-top: 4px;
+    }
+
+    .human-card {
+        border-top: 5px solid #4f46e5;
+    }
+
+    .ai-card {
+        border-top: 5px solid #9333ea;
+    }
+
+    .round-card {
+        border-top: 5px solid #0ea5e9;
+    }
+
+
+    /* ================================
+       SECTION
+       ================================ */
+
+    .section-title {
+        color: #111827;
+
+        font-size: 27px;
+
         font-weight: 800;
+
+        margin-top: 30px;
+
         margin-bottom: 8px;
     }
 
-    .subtitle {
-        font-size: 18px;
-        opacity: 0.95;
+    .section-description {
+        color: #64748b;
+
+        font-size: 15px;
+
+        margin-bottom: 20px;
     }
 
-    .info-box {
-        background-color: white;
-        padding: 16px;
-        border-radius: 12px;
-        border: 1px solid #dddddd;
-        margin-bottom: 15px;
+
+    /* ================================
+       CHALLENGE CARD
+       ================================ */
+
+    .challenge-card {
+        background: white;
+
+        border: 1px solid #e5e7eb;
+
+        border-radius: 24px;
+
+        padding: 28px;
+
+        box-shadow:
+            0 12px 35px rgba(15,23,42,0.07);
+
+        margin-top: 12px;
     }
 
-    .score-human {
-        background-color: #e8f5e9;
-        padding: 18px;
-        border-radius: 12px;
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
+    .challenge-heading {
+        color: #111827;
+
+        font-size: 24px;
+
+        font-weight: 800;
+
+        margin-bottom: 6px;
     }
 
-    .score-ai {
-        background-color: #fff3e0;
-        padding: 18px;
-        border-radius: 12px;
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
+    .challenge-description {
+        color: #64748b;
+
+        font-size: 15px;
+
+        margin-bottom: 18px;
     }
 
-    .challenge-box {
-        background-color: white;
-        padding: 25px;
-        border-radius: 15px;
-        border: 1px solid #dddddd;
-        margin-top: 15px;
+
+    /* ================================
+       TARGET BADGE
+       ================================ */
+
+    .target-box {
+        background:
+            linear-gradient(
+                135deg,
+                #eef2ff,
+                #f5f3ff
+            );
+
+        border: 1px solid #c7d2fe;
+
+        border-radius: 16px;
+
+        padding: 15px 20px;
+
+        color: #3730a3;
+
+        font-weight: 750;
+
+        margin: 15px 0;
     }
+
+
+    /* ================================
+       HOME STEPS
+       ================================ */
+
+    .step-card {
+        background: white;
+
+        border: 1px solid #e5e7eb;
+
+        border-radius: 18px;
+
+        padding: 20px;
+
+        height: 100%;
+
+        box-shadow:
+            0 7px 22px rgba(15,23,42,0.05);
+    }
+
+    .step-number {
+        width: 38px;
+        height: 38px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background: #eef2ff;
+
+        color: #4f46e5;
+
+        font-weight: 800;
+
+        margin-bottom: 12px;
+    }
+
+    .step-title {
+        font-size: 16px;
+
+        font-weight: 750;
+
+        color: #111827;
+
+        margin-bottom: 5px;
+    }
+
+    .step-text {
+        font-size: 14px;
+
+        color: #64748b;
+
+        line-height: 1.5;
+    }
+
+
+    /* ================================
+       FOOTER
+       ================================ */
 
     .footer {
+        margin-top: 45px;
+
+        padding: 28px;
+
         text-align: center;
-        color: gray;
-        margin-top: 40px;
-        padding: 20px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #111827,
+                #312e81
+            );
+
+        color: white;
+
+        box-shadow:
+            0 15px 40px rgba(15,23,42,0.18);
+    }
+
+    .footer-title {
+        font-size: 20px;
+
+        font-weight: 800;
+
+        margin-bottom: 8px;
+    }
+
+    .footer-text {
+        color: rgba(255,255,255,0.72);
+
+        font-size: 14px;
+
+        line-height: 1.7;
+    }
+
+
+    /* ================================
+       BUTTONS
+       ================================ */
+
+    .stButton > button {
+        border-radius: 12px !important;
+
+        min-height: 45px !important;
+
+        font-weight: 700 !important;
+
+        border: 1px solid #e5e7eb !important;
+
+        transition: all 0.2s ease !important;
+    }
+
+    .stButton > button:hover {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 8px 18px rgba(79,70,229,0.15);
+    }
+
+
+    /* ================================
+       TABS
+       ================================ */
+
+    button[data-baseweb="tab"] {
+        font-weight: 700 !important;
+
+        font-size: 15px !important;
+    }
+
+
+    /* ================================
+       MOBILE
+       ================================ */
+
+    @media (max-width: 768px) {
+
+        .hero {
+            padding: 30px 25px;
+        }
+
+        .hero-title {
+            font-size: 34px;
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+        }
+
     }
 
     </style>
@@ -105,151 +556,42 @@ st.markdown(
 
 
 # =========================================================
-# SESSION STATE
+# HELPER FUNCTIONS
 # =========================================================
 
-if "human_score" not in st.session_state:
-    st.session_state.human_score = 0
+def get_font(size, bold=False):
 
-if "ai_score" not in st.session_state:
-    st.session_state.ai_score = 0
+    possible_fonts = []
 
-if "round_count" not in st.session_state:
-    st.session_state.round_count = 0
+    if bold:
+        possible_fonts = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+            "arialbd.ttf",
+        ]
 
-if "captcha_text" not in st.session_state:
-    st.session_state.captcha_text = None
+    else:
+        possible_fonts = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+            "arial.ttf",
+        ]
 
-if "captcha_image" not in st.session_state:
-    st.session_state.captcha_image = None
+    for font_path in possible_fonts:
 
-if "animal_grid" not in st.session_state:
-    st.session_state.animal_grid = None
-
-if "animal_target" not in st.session_state:
-    st.session_state.animal_target = None
-
-if "animal_correct" not in st.session_state:
-    st.session_state.animal_correct = []
-
-if "api_tested" not in st.session_state:
-    st.session_state.api_tested = False
-
-
-# =========================================================
-# SIDEBAR
-# =========================================================
-
-with st.sidebar:
-
-    st.header("⚙️ Settings")
-
-    st.subheader("🔑 Groq API Key")
-
-    api_key = st.text_input(
-        "Paste your Groq API key:",
-        type="password",
-        placeholder="gsk_...",
-        help="Your key is used for the current application session."
-    )
-
-    st.caption(
-        "🔐 Do not put your API key directly inside app.py or GitHub."
-    )
-
-    st.divider()
-
-    st.subheader("🤖 AI Model")
-
-    st.code(GROQ_MODEL)
-
-    st.caption(
-        "Vision model used for the image challenges."
-    )
-
-    st.divider()
-
-    # -----------------------------------------------------
-    # TEST API KEY
-    # -----------------------------------------------------
-
-    if st.button(
-        "🧪 Test API Key",
-        use_container_width=True,
-        key="sidebar_test_api"
-    ):
-
-        if not api_key.strip():
-
-            st.warning(
-                "Please paste your Groq API key first."
-            )
-
-        else:
+        if os.path.exists(font_path):
 
             try:
-
-                client = Groq(
-                    api_key=api_key.strip()
+                return ImageFont.truetype(
+                    font_path,
+                    size
                 )
 
-                response = client.chat.completions.create(
-                    model=GROQ_MODEL,
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": "Reply with only: API WORKING"
-                        }
-                    ],
-                    max_completion_tokens=20
-                )
+            except:
+                pass
 
-                if response.choices:
+    return ImageFont.load_default()
 
-                    st.session_state.api_tested = True
-
-                    st.success(
-                        "✅ API Key is working!"
-                    )
-
-            except Exception as e:
-
-                st.session_state.api_tested = False
-
-                st.error(
-                    "❌ API Key test failed."
-                )
-
-                st.caption(
-                    str(e)
-                )
-
-    st.divider()
-
-    # -----------------------------------------------------
-    # RESET SCORE
-    # -----------------------------------------------------
-
-    if st.button(
-        "🔄 Reset Scores",
-        use_container_width=True,
-        key="sidebar_reset_scores"
-    ):
-
-        st.session_state.human_score = 0
-        st.session_state.ai_score = 0
-        st.session_state.round_count = 0
-
-        st.success(
-            "Scores reset!"
-        )
-
-        st.rerun()
-
-
-# =========================================================
-# FUNCTIONS
-# =========================================================
 
 def create_captcha():
 
@@ -260,30 +602,19 @@ def create_captcha():
         for _ in range(5)
     )
 
-    width = 450
-    height = 160
+    width = 520
+    height = 180
 
     image = Image.new(
         "RGB",
         (width, height),
-        "white"
+        "#f8fafc"
     )
 
     draw = ImageDraw.Draw(image)
 
-    try:
-
-        font = ImageFont.truetype(
-            "arial.ttf",
-            65
-        )
-
-    except:
-
-        font = ImageFont.load_default()
-
-    # Random lines
-    for _ in range(8):
+    # Background lines
+    for _ in range(10):
 
         x1 = random.randint(0, width)
         y1 = random.randint(0, height)
@@ -293,28 +624,44 @@ def create_captcha():
 
         draw.line(
             (x1, y1, x2, y2),
-            fill=(150, 150, 150),
+            fill=(
+                random.randint(120, 210),
+                random.randint(120, 210),
+                random.randint(120, 210)
+            ),
             width=2
         )
 
-    # Random dots
-    for _ in range(60):
+    # Noise dots
+    for _ in range(100):
 
         x = random.randint(0, width - 1)
         y = random.randint(0, height - 1)
 
         draw.ellipse(
             (x, y, x + 3, y + 3),
-            fill=(100, 100, 100)
+            fill="#94a3b8"
         )
 
-    # CAPTCHA text
-    draw.text(
-        (80, 40),
-        text,
-        fill=(20, 20, 20),
-        font=font
+    font = get_font(
+        68,
+        bold=True
     )
+
+    # Character positions
+    start_x = 70
+
+    for index, char in enumerate(text):
+
+        x = start_x + index * 80
+        y = random.randint(45, 65)
+
+        draw.text(
+            (x, y),
+            char,
+            font=font,
+            fill="#111827"
+        )
 
     return image, text
 
@@ -322,44 +669,43 @@ def create_captcha():
 def create_animal_grid():
 
     animals = [
-        "🐱",
-        "🐶",
-        "🐭",
-        "🐹",
-        "🐰",
-        "🦊",
-        "🐻",
-        "🐼",
-        "🐨",
-        "🐯",
-        "🦁",
-        "🐮",
-        "🐷",
-        "🐸",
-        "🐵",
-        "🐙"
+        "CAT",
+        "DOG",
+        "FOX",
+        "LION",
+        "TIGER",
+        "BEAR",
+        "PANDA",
+        "RABBIT",
+        "HORSE",
+        "MONKEY",
+        "ZEBRA",
+        "KOALA",
+        "DEER",
+        "WOLF",
+        "FROG",
+        "MOUSE"
     ]
 
-    # Make sure the target occurs more than once
     target = random.choice(
         [
-            "🐱",
-            "🐶",
-            "🐰",
-            "🐼",
-            "🐯"
+            "CAT",
+            "DOG",
+            "RABBIT",
+            "PANDA",
+            "TIGER"
         ]
     )
 
     grid = animals.copy()
 
-    # Replace some tiles with the target
     positions = random.sample(
         range(16),
         3
     )
 
     for position in positions:
+
         grid[position] = target
 
     random.shuffle(grid)
@@ -370,7 +716,98 @@ def create_animal_grid():
         if animal == target
     ]
 
-    return grid, target, correct_indices
+    return (
+        grid,
+        target,
+        correct_indices
+    )
+
+
+def create_animal_image(grid):
+
+    width = 720
+    height = 720
+
+    image = Image.new(
+        "RGB",
+        (width, height),
+        "#f8fafc"
+    )
+
+    draw = ImageDraw.Draw(image)
+
+    number_font = get_font(
+        22,
+        bold=True
+    )
+
+    animal_font = get_font(
+        32,
+        bold=True
+    )
+
+    for i, animal in enumerate(grid):
+
+        row = i // 4
+        col = i % 4
+
+        x = col * 180
+        y = row * 180
+
+        # Card
+        draw.rounded_rectangle(
+            (
+                x + 8,
+                y + 8,
+                x + 172,
+                y + 172
+            ),
+            radius=18,
+            fill="white",
+            outline="#cbd5e1",
+            width=3
+        )
+
+        # Tile number
+        draw.text(
+            (
+                x + 22,
+                y + 18
+            ),
+            str(i + 1),
+            font=number_font,
+            fill="#64748b"
+        )
+
+        # Animal name
+        bbox = draw.textbbox(
+            (0, 0),
+            animal,
+            font=animal_font
+        )
+
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+
+        text_x = (
+            x + (180 - text_width) / 2
+        )
+
+        text_y = (
+            y + (180 - text_height) / 2
+        )
+
+        draw.text(
+            (
+                text_x,
+                text_y
+            ),
+            animal,
+            font=animal_font,
+            fill="#312e81"
+        )
+
+    return image
 
 
 def image_to_base64(image):
@@ -419,17 +856,21 @@ def ask_groq_about_image(
                     "role": "user",
 
                     "content": [
+
                         {
                             "type": "text",
                             "text": prompt
                         },
+
                         {
                             "type": "image_url",
+
                             "image_url": {
                                 "url":
                                 f"data:image/png;base64,{image_base64}"
                             }
                         }
+
                     ]
                 }
             ],
@@ -439,31 +880,182 @@ def ask_groq_about_image(
             reasoning_effort="none"
         )
 
-        answer = response.choices[0].message.content
+        answer = (
+            response
+            .choices[0]
+            .message
+            .content
+        )
 
         return answer, None
 
     except Exception as e:
 
-        return None, str(e)
+        return (
+            None,
+            str(e)
+        )
 
 
 # =========================================================
-# HEADER
+# SIDEBAR
+# =========================================================
+
+with st.sidebar:
+
+    st.markdown(
+        """
+        <div style="
+            font-size:24px;
+            font-weight:800;
+            margin-bottom:5px;
+        ">
+            🧠 AI Challenge
+        </div>
+
+        <div style="
+            color:#c7d2fe;
+            font-size:13px;
+            margin-bottom:25px;
+        ">
+            Human vs Artificial Intelligence
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        "### 🔑 Groq API Key"
+    )
+
+    api_key = st.text_input(
+        "Enter your API key",
+        type="password",
+        placeholder="gsk_...",
+        key="groq_api_key_input"
+    )
+
+    st.caption(
+        "Your key is used for the current session. "
+        "Never add it directly to GitHub."
+    )
+
+    st.divider()
+
+    st.markdown(
+        "### 🤖 Vision Model"
+    )
+
+    st.code(
+        GROQ_MODEL
+    )
+
+    st.caption(
+        "Used to analyze the visual challenges."
+    )
+
+    st.divider()
+
+    # TEST API
+    if st.button(
+        "🧪 Test API Connection",
+        use_container_width=True,
+        key="sidebar_test_api_button"
+    ):
+
+        if not api_key.strip():
+
+            st.warning(
+                "Please enter your Groq API key first."
+            )
+
+        else:
+
+            try:
+
+                client = Groq(
+                    api_key=api_key.strip()
+                )
+
+                response = client.chat.completions.create(
+                    model=GROQ_MODEL,
+                    messages=[
+                        {
+                            "role": "user",
+                            "content":
+                            "Reply with exactly: API WORKING"
+                        }
+                    ],
+                    max_completion_tokens=20,
+                    reasoning_effort="none"
+                )
+
+                if response.choices:
+
+                    st.session_state.api_tested = True
+
+                    st.success(
+                        "✓ API connection successful!"
+                    )
+
+            except Exception as error:
+
+                st.session_state.api_tested = False
+
+                st.error(
+                    "API connection failed."
+                )
+
+                st.caption(
+                    str(error)
+                )
+
+    st.divider()
+
+    # RESET
+    if st.button(
+        "🔄 Reset All Scores",
+        use_container_width=True,
+        key="sidebar_reset_button"
+    ):
+
+        st.session_state.human_score = 0
+        st.session_state.ai_score = 0
+        st.session_state.round_count = 0
+
+        st.session_state.captcha_human_done = False
+        st.session_state.captcha_ai_done = False
+
+        st.session_state.animal_human_done = False
+        st.session_state.animal_ai_done = False
+
+        st.success(
+            "Scores have been reset."
+        )
+
+        st.rerun()
+
+
+# =========================================================
+# HERO HEADER
 # =========================================================
 
 st.markdown(
     """
-    <div class="top-box">
+    <div class="hero">
 
-        <div class="title">
+        <div class="hero-badge">
+            HUMAN × AI • VISUAL CHALLENGE
+        </div>
+
+        <div class="hero-title">
             🧠 Can AI Beat You?
         </div>
 
-        <div class="subtitle">
+        <div class="hero-subtitle">
             Play fun challenges that are easy for humans
-            but difficult for AI. Let's discover whether
-            human intelligence can beat artificial intelligence!
+            but difficult for AI. Test your visual skills
+            against artificial intelligence.
         </div>
 
     </div>
@@ -482,33 +1074,56 @@ with info1:
 
     st.markdown(
         """
-        <div class="info-box">
-            <b>CF Name:</b><br>
-            Jahangeer Ali
+        <div class="info-card">
+
+            <div class="info-label">
+                CF Name
+            </div>
+
+            <div class="info-value">
+                Jahangeer Ali
+            </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
+
 
 with info2:
 
     st.markdown(
         """
-        <div class="info-box">
-            <b>ID:</b><br>
-            MRBICF2003
+        <div class="info-card">
+
+            <div class="info-label">
+                ID
+            </div>
+
+            <div class="info-value">
+                MRBICF2003
+            </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with info3:
 
     st.markdown(
         """
-        <div class="info-box">
-            <b>Project:</b><br>
-            Human vs AI Challenge
+        <div class="info-card">
+
+            <div class="info-label">
+                Project
+            </div>
+
+            <div class="info-value">
+                Human vs AI Challenge
+            </div>
+
         </div>
         """,
         unsafe_allow_html=True
@@ -519,41 +1134,88 @@ with info3:
 # SCOREBOARD
 # =========================================================
 
-st.subheader("🏆 Scoreboard")
+st.markdown(
+    """
+    <div class="section-title">
+        🏆 Scoreboard
+    </div>
+
+    <div class="section-description">
+        See who is winning the Human vs AI challenge.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 score1, score2, score3 = st.columns(3)
+
 
 with score1:
 
     st.markdown(
         f"""
-        <div class="score-human">
-            👤 Human<br>
-            {st.session_state.human_score}
+        <div class="score-card human-card">
+
+            <div class="score-icon">
+                👤
+            </div>
+
+            <div class="score-label">
+                Human
+            </div>
+
+            <div class="score-number">
+                {st.session_state.human_score}
+            </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
+
 
 with score2:
 
     st.markdown(
         f"""
-        <div class="score-ai">
-            🤖 AI<br>
-            {st.session_state.ai_score}
+        <div class="score-card ai-card">
+
+            <div class="score-icon">
+                🤖
+            </div>
+
+            <div class="score-label">
+                AI
+            </div>
+
+            <div class="score-number">
+                {st.session_state.ai_score}
+            </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with score3:
 
     st.markdown(
         f"""
-        <div class="score-human">
-            🎮 Rounds<br>
-            {st.session_state.round_count}
+        <div class="score-card round-card">
+
+            <div class="score-icon">
+                🎮
+            </div>
+
+            <div class="score-label">
+                Rounds
+            </div>
+
+            <div class="score-number">
+                {st.session_state.round_count}
+            </div>
+
         </div>
         """,
         unsafe_allow_html=True
@@ -574,72 +1236,190 @@ tab_home, tab_captcha, tab_animals = st.tabs(
 
 
 # =========================================================
-# HOME TAB
+# HOME
 # =========================================================
 
 with tab_home:
 
     st.markdown(
         """
-        <div class="challenge-box">
+        <div class="challenge-card">
 
-            <h2>Welcome! 👋</h2>
+            <div class="challenge-heading">
+                Welcome to the Challenge 👋
+            </div>
 
-            <p>
-                This project compares human intelligence
-                with Artificial Intelligence.
-            </p>
-
-            <p>
-                Humans solve visual challenges and
-                Groq AI tries to solve the same type
-                of challenge.
-            </p>
-
-            <h3>How it works</h3>
-
-            <ol>
-                <li>Choose a challenge.</li>
-                <li>Human solves the challenge.</li>
-                <li>Groq Vision AI analyzes the challenge.</li>
-                <li>Human and AI results are compared.</li>
-                <li>The scoreboard is updated.</li>
-            </ol>
+            <div class="challenge-description">
+                Can human visual intelligence beat AI?
+                Try the challenges and find out.
+            </div>
 
         </div>
         """,
         unsafe_allow_html=True
     )
 
+    st.markdown(
+        """
+        <div style="
+            margin-top:25px;
+            margin-bottom:15px;
+            font-size:22px;
+            font-weight:800;
+            color:#111827;
+        ">
+            How it works
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    step1, step2, step3, step4 = st.columns(4)
+
+
+    with step1:
+
+        st.markdown(
+            """
+            <div class="step-card">
+
+                <div class="step-number">
+                    1
+                </div>
+
+                <div class="step-title">
+                    Choose
+                </div>
+
+                <div class="step-text">
+                    Select a visual challenge
+                    from the tabs.
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    with step2:
+
+        st.markdown(
+            """
+            <div class="step-card">
+
+                <div class="step-number">
+                    2
+                </div>
+
+                <div class="step-title">
+                    Human Solves
+                </div>
+
+                <div class="step-text">
+                    Complete the challenge
+                    yourself.
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    with step3:
+
+        st.markdown(
+            """
+            <div class="step-card">
+
+                <div class="step-number">
+                    3
+                </div>
+
+                <div class="step-title">
+                    AI Solves
+                </div>
+
+                <div class="step-text">
+                    Groq Vision AI analyzes
+                    the same challenge.
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+    with step4:
+
+        st.markdown(
+            """
+            <div class="step-card">
+
+                <div class="step-number">
+                    4
+                </div>
+
+                <div class="step-title">
+                    Compare
+                </div>
+
+                <div class="step-text">
+                    The scoreboard shows
+                    who wins the round.
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
     if not api_key.strip():
 
-        st.info(
-            "👈 Paste your Groq API key in the sidebar "
-            "to use the AI features."
+        st.warning(
+            "🔑 Enter your Groq API key in the sidebar "
+            "before using the AI buttons."
         )
 
     else:
 
         st.success(
-            "🔑 API key entered. You can now use the AI buttons."
+            "✓ API key entered. Your AI challenges are ready!"
         )
 
 
 # =========================================================
-# TEXT CAPTCHA TAB
+# TEXT CAPTCHA
 # =========================================================
 
 with tab_captcha:
 
-    st.subheader(
-        "🔤 Text CAPTCHA Challenge"
+    st.markdown(
+        """
+        <div class="challenge-card">
+
+            <div class="challenge-heading">
+                🔤 Text CAPTCHA
+            </div>
+
+            <div class="challenge-description">
+                Read the distorted characters and enter
+                the correct sequence.
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    st.write(
-        "Read the distorted characters and enter what you see."
-    )
 
-    # Create CAPTCHA only once
+    # -----------------------------------------------------
+    # CREATE CAPTCHA
+    # -----------------------------------------------------
+
     if st.session_state.captcha_text is None:
 
         image, text = create_captcha()
@@ -647,66 +1427,125 @@ with tab_captcha:
         st.session_state.captcha_image = image
         st.session_state.captcha_text = text
 
+
     image = st.session_state.captcha_image
     correct_text = st.session_state.captcha_text
 
-    st.image(
-        image,
-        width=450
+
+    st.write("")
+
+
+    captcha_image_col, captcha_info_col = st.columns(
+        [1.35, 1]
     )
 
+
+    with captcha_image_col:
+
+        st.image(
+            image,
+            width=520
+        )
+
+
+    with captcha_info_col:
+
+        st.markdown(
+            """
+            <div class="target-box">
+
+                🎯 Your task
+
+                <br><br>
+
+                Read the five characters
+                shown in the CAPTCHA.
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.caption(
+            "Human and AI will attempt the same CAPTCHA."
+        )
+
+
     human_answer = st.text_input(
-        "Enter the characters:",
+        "Enter CAPTCHA characters",
+        placeholder="Type the characters here...",
         key="captcha_answer_input"
     )
 
-    captcha_col1, captcha_col2 = st.columns(2)
 
-    # -----------------------------------------------------
-    # HUMAN CAPTCHA BUTTON
-    # -----------------------------------------------------
+    captcha_button1, captcha_button2 = st.columns(2)
 
-    with captcha_col1:
+
+    # HUMAN
+    with captcha_button1:
 
         if st.button(
-            "👤 Human Verify",
+            "👤 Submit Human Answer",
             use_container_width=True,
-            key="captcha_human_verify"
+            key="captcha_human_submit"
         ):
 
-            if human_answer.strip().upper() == correct_text.upper():
+            if st.session_state.captcha_human_done:
+
+                st.info(
+                    "You already submitted this CAPTCHA."
+                )
+
+            elif (
+                human_answer.strip().upper()
+                ==
+                correct_text.upper()
+            ):
 
                 st.session_state.human_score += 1
                 st.session_state.round_count += 1
 
+                st.session_state.captcha_human_done = True
+
                 st.success(
-                    "🎉 Correct! Human gets the point."
+                    "🎉 Correct! Human wins this challenge."
                 )
 
             else:
 
                 st.session_state.round_count += 1
 
+                st.session_state.captcha_human_done = True
+
                 st.error(
-                    f"❌ Incorrect. Correct answer: {correct_text}"
+                    "❌ Incorrect answer."
                 )
 
-    # -----------------------------------------------------
-    # AI CAPTCHA BUTTON
-    # -----------------------------------------------------
+                st.info(
+                    f"Correct answer: {correct_text}"
+                )
 
-    with captcha_col2:
+
+    # AI
+    with captcha_button2:
 
         if st.button(
-            "🤖 Ask AI",
+            "🤖 Ask Groq AI",
             use_container_width=True,
-            key="captcha_ask_ai"
+            key="captcha_ai_submit"
         ):
 
-            if not api_key.strip():
+            if st.session_state.captcha_ai_done:
+
+                st.info(
+                    "AI has already attempted this CAPTCHA."
+                )
+
+            elif not api_key.strip():
 
                 st.warning(
-                    "Please paste your Groq API key in the sidebar."
+                    "Please enter your Groq API key "
+                    "in the sidebar first."
                 )
 
             else:
@@ -716,13 +1555,14 @@ with tab_captcha:
                 ):
 
                     prompt = """
-                    This is a CAPTCHA image.
+                    This is a visual CAPTCHA.
 
-                    Read the five characters carefully.
+                    Carefully read the five uppercase
+                    letters and numbers.
 
-                    Return ONLY the characters you see.
-                    Do not explain.
-                    Do not add punctuation.
+                    Return ONLY the characters.
+                    Do not explain your answer.
+                    Do not add spaces or punctuation.
                     """
 
                     ai_answer, error = ask_groq_about_image(
@@ -730,6 +1570,7 @@ with tab_captcha:
                         prompt,
                         api_key
                     )
+
 
                 if error:
 
@@ -743,8 +1584,10 @@ with tab_captcha:
 
                 else:
 
+                    st.session_state.captcha_ai_done = True
+
                     st.write(
-                        f"🤖 AI answered: **{ai_answer}**"
+                        f"AI response: **{ai_answer}**"
                     )
 
                     clean_ai = re.sub(
@@ -755,34 +1598,33 @@ with tab_captcha:
 
                     correct = correct_text.upper()
 
+
                     if clean_ai == correct:
 
                         st.session_state.ai_score += 1
 
                         st.success(
-                            "🤖 AI solved the CAPTCHA correctly!"
+                            "🤖 AI solved the CAPTCHA!"
                         )
 
                     else:
 
                         st.error(
-                            "🤖 AI could not solve the CAPTCHA correctly."
+                            "🤖 AI could not solve it correctly."
                         )
 
                         st.info(
                             f"Correct answer: {correct}"
                         )
 
+
     st.divider()
 
-    # -----------------------------------------------------
-    # NEW CAPTCHA BUTTON
-    # -----------------------------------------------------
 
     if st.button(
-        "🔄 New CAPTCHA",
+        "🔄 Generate New CAPTCHA",
         use_container_width=True,
-        key="captcha_new_challenge"
+        key="captcha_new_button"
     ):
 
         new_image, new_text = create_captcha()
@@ -790,167 +1632,184 @@ with tab_captcha:
         st.session_state.captcha_image = new_image
         st.session_state.captcha_text = new_text
 
+        st.session_state.captcha_human_done = False
+        st.session_state.captcha_ai_done = False
+
         st.rerun()
 
 
 # =========================================================
-# ANIMAL GRID TAB
+# ANIMAL GRID
 # =========================================================
 
 with tab_animals:
 
-    st.subheader(
-        "🐾 Animal Grid Challenge"
+    st.markdown(
+        """
+        <div class="challenge-card">
+
+            <div class="challenge-heading">
+                🐾 Animal Grid Hunt
+            </div>
+
+            <div class="challenge-description">
+                Find every tile containing the target animal.
+                Then compare your answer with AI.
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    st.write(
-        "Find all the tiles containing the target animal."
-    )
 
-    # Create grid only once
+    # -----------------------------------------------------
+    # CREATE GRID
+    # -----------------------------------------------------
+
     if st.session_state.animal_grid is None:
 
-        grid, target, correct_indices = create_animal_grid()
+        (
+            grid,
+            target,
+            correct_indices
+        ) = create_animal_grid()
 
         st.session_state.animal_grid = grid
         st.session_state.animal_target = target
         st.session_state.animal_correct = correct_indices
 
+
     grid = st.session_state.animal_grid
+
     target = st.session_state.animal_target
+
     correct_indices = st.session_state.animal_correct
 
-    st.info(
-        f"🎯 Find all tiles containing: {target}"
+
+    st.markdown(
+        f"""
+        <div class="target-box">
+
+            🎯 Target animal:
+            <strong>{target}</strong>
+
+            <br>
+
+            Find every tile containing
+            <strong>{target}</strong>.
+
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
-    # =====================================================
-    # CREATE IMAGE FOR AI
-    # =====================================================
+    # -----------------------------------------------------
+    # IMAGE FOR AI
+    # -----------------------------------------------------
 
-    grid_image = Image.new(
-        "RGB",
-        (600, 600),
-        "white"
+    grid_image = create_animal_image(
+        grid
     )
 
-    draw = ImageDraw.Draw(
-        grid_image
+
+    grid_left, grid_right = st.columns(
+        [1.2, 1]
     )
 
-    try:
 
-        emoji_font = ImageFont.truetype(
-            "seguiemj.ttf",
-            55
-        )
+    with grid_left:
 
-    except:
-
-        emoji_font = ImageFont.load_default()
-
-
-    for i, animal in enumerate(grid):
-
-        row = i // 4
-        col = i % 4
-
-        x = col * 150
-        y = row * 150
-
-        draw.rectangle(
-            (
-                x + 5,
-                y + 5,
-                x + 145,
-                y + 145
-            ),
-            outline="black",
-            width=2
-        )
-
-        draw.text(
-            (
-                x + 50,
-                y + 40
-            ),
-            animal,
-            font=emoji_font,
-            fill="black"
-        )
-
-        draw.text(
-            (
-                x + 10,
-                y + 115
-            ),
-            str(i + 1),
-            fill="black"
+        st.image(
+            grid_image,
+            width=620
         )
 
 
-    st.image(
-        grid_image,
-        width=600
-    )
+    with grid_right:
+
+        st.markdown(
+            """
+            <div class="challenge-card">
+
+                <div class="challenge-heading">
+                    Select tiles
+                </div>
+
+                <div class="challenge-description">
+                    Tick every tile that contains
+                    the target animal.
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
-    # =====================================================
-    # HUMAN SELECTION
-    # =====================================================
+        selected = []
 
-    st.write(
-        "### 👤 Select the matching tiles"
-    )
-
-    selected = []
-
-    tile_cols = st.columns(4)
-
-    for i in range(16):
-
-        col_index = i % 4
-
-        with tile_cols[col_index]:
-
-            checked = st.checkbox(
-                f"Tile {i + 1}",
-                key=f"animal_tile_checkbox_{i}"
-            )
-
-            if checked:
-
-                selected.append(i)
+        tile_columns = st.columns(2)
 
 
-    animal_col1, animal_col2 = st.columns(2)
+        for i in range(16):
+
+            column_index = i % 2
+
+            with tile_columns[column_index]:
+
+                checked = st.checkbox(
+                    f"Tile {i + 1}",
+                    key=f"animal_checkbox_{i}"
+                )
+
+                if checked:
+
+                    selected.append(i)
 
 
-    # =====================================================
-    # HUMAN VERIFY
-    # =====================================================
+    st.write("")
 
-    with animal_col1:
+
+    animal_button1, animal_button2 = st.columns(2)
+
+
+    # HUMAN
+    with animal_button1:
 
         if st.button(
-            "👤 Verify Human Answer",
+            "👤 Submit Human Answer",
             use_container_width=True,
-            key="animal_human_verify"
+            key="animal_human_submit"
         ):
 
-            if sorted(selected) == sorted(correct_indices):
+            if st.session_state.animal_human_done:
+
+                st.info(
+                    "You already submitted this grid."
+                )
+
+            elif (
+                sorted(selected)
+                ==
+                sorted(correct_indices)
+            ):
 
                 st.session_state.human_score += 1
                 st.session_state.round_count += 1
 
+                st.session_state.animal_human_done = True
+
                 st.success(
-                    "🎉 Correct! Human found all matching animals."
+                    "🎉 Excellent! Human found all matching tiles."
                 )
 
             else:
 
                 st.session_state.round_count += 1
+
+                st.session_state.animal_human_done = True
 
                 correct_tiles = [
                     i + 1
@@ -958,7 +1817,7 @@ with tab_animals:
                 ]
 
                 st.error(
-                    "❌ Incorrect."
+                    "❌ Human answer is incorrect."
                 )
 
                 st.info(
@@ -966,44 +1825,50 @@ with tab_animals:
                 )
 
 
-    # =====================================================
-    # AI VERIFY
-    # =====================================================
-
-    with animal_col2:
+    # AI
+    with animal_button2:
 
         if st.button(
-            "🤖 Ask AI",
+            "🤖 Ask Groq AI",
             use_container_width=True,
-            key="animal_ask_ai"
+            key="animal_ai_submit"
         ):
 
-            if not api_key.strip():
+            if st.session_state.animal_ai_done:
+
+                st.info(
+                    "AI has already attempted this grid."
+                )
+
+            elif not api_key.strip():
 
                 st.warning(
-                    "Please paste your Groq API key in the sidebar."
+                    "Please enter your Groq API key "
+                    "in the sidebar first."
                 )
 
             else:
 
                 with st.spinner(
-                    "🤖 Groq AI is analyzing the animal grid..."
+                    "🤖 Groq AI is analyzing the grid..."
                 ):
 
                     prompt = f"""
-                    Look carefully at this 4x4 animal grid.
+                    This is a 4 by 4 visual grid.
 
                     The target animal is:
                     {target}
 
-                    The tiles are numbered from 1 to 16.
+                    Each tile is numbered from 1 to 16.
 
-                    Identify EVERY tile containing the target animal.
+                    Identify EVERY tile containing the
+                    target animal.
 
-                    Return ONLY the tile numbers separated by commas.
+                    Return ONLY the tile numbers separated
+                    by commas.
 
                     Example:
-                    2, 7, 14
+                    2, 7, 11
 
                     Do not explain your answer.
                     """
@@ -1013,6 +1878,7 @@ with tab_animals:
                         prompt,
                         api_key
                     )
+
 
                 if error:
 
@@ -1026,8 +1892,10 @@ with tab_animals:
 
                 else:
 
+                    st.session_state.animal_ai_done = True
+
                     st.write(
-                        f"🤖 AI selected: **{ai_answer}**"
+                        f"AI response: **{ai_answer}**"
                     )
 
                     numbers = re.findall(
@@ -1037,15 +1905,17 @@ with tab_animals:
 
                     ai_indices = []
 
+
                     for number in numbers:
 
-                        n = int(number)
+                        number_value = int(number)
 
-                        if 1 <= n <= 16:
+                        if 1 <= number_value <= 16:
 
                             ai_indices.append(
-                                n - 1
+                                number_value - 1
                             )
+
 
                     ai_indices = sorted(
                         list(
@@ -1053,14 +1923,17 @@ with tab_animals:
                         )
                     )
 
-                    if ai_indices == sorted(
-                        correct_indices
+
+                    if (
+                        ai_indices
+                        ==
+                        sorted(correct_indices)
                     ):
 
                         st.session_state.ai_score += 1
 
                         st.success(
-                            "🤖 AI correctly identified all matching tiles!"
+                            "🤖 AI correctly found all matching tiles!"
                         )
 
                     else:
@@ -1082,23 +1955,29 @@ with tab_animals:
     st.divider()
 
 
-    # =====================================================
-    # NEW ANIMAL GRID
-    # =====================================================
-
     if st.button(
-        "🔄 New Animal Grid",
+        "🔄 Generate New Animal Grid",
         use_container_width=True,
-        key="animal_new_challenge"
+        key="animal_new_button"
     ):
 
-        new_grid, new_target, new_correct = (
-            create_animal_grid()
-        )
+        (
+            new_grid,
+            new_target,
+            new_correct
+        ) = create_animal_grid()
+
 
         st.session_state.animal_grid = new_grid
+
         st.session_state.animal_target = new_target
+
         st.session_state.animal_correct = new_correct
+
+        st.session_state.animal_human_done = False
+
+        st.session_state.animal_ai_done = False
+
 
         st.rerun()
 
@@ -1107,21 +1986,33 @@ with tab_animals:
 # FOOTER
 # =========================================================
 
-st.divider()
-
 st.markdown(
     """
     <div class="footer">
 
-        <b>Can AI Beat You?</b>
-        <br><br>
+        <div class="footer-title">
+            🧠 Can AI Beat You?
+        </div>
 
-        Human vs Artificial Intelligence Visual Challenge
-        <br><br>
+        <div class="footer-text">
 
-        CF Name: Jahangeer Ali
-        &nbsp; | &nbsp;
-        ID: MRBICF2003
+            Human vs Artificial Intelligence Visual Challenge
+
+            <br><br>
+
+            <strong>CF Name:</strong>
+            Jahangeer Ali
+
+            &nbsp;&nbsp; | &nbsp;&nbsp;
+
+            <strong>ID:</strong>
+            MRBICF2003
+
+            <br><br>
+
+            Built with Streamlit + Groq Vision AI
+
+        </div>
 
     </div>
     """,
