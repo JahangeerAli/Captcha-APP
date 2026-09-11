@@ -231,7 +231,6 @@ if activity_tab == "🔐 CAPTCHA Visual Challenge":
         text = "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
         img = Image.new("RGB", (500, 260), "#f8fafc")
         draw = ImageDraw.Draw(img)
-        # Background interference lines
         for _ in range(15):
             draw.line([random.randint(0, 500), random.randint(0, 260), random.randint(0, 500), random.randint(0, 260)], fill="#cbd5e1", width=2)
         try:
@@ -315,18 +314,23 @@ elif activity_tab == "🎲 Dice Dot Counter":
             val = random.randint(1, 6)
             total += val
             draw.rectangle([cx, cy, cx+75, cy+75], fill="#ffffff", outline="#94a3b8", width=3)
-            dot = 7
+            r = 4  # Dot radius helper to avoid coordinate out-of-bounds error
+            
+            # Center dot
             if val in [1, 3, 5]: 
-                draw.ellipse([cx+34, cy+34, cx+34+dot, cy+34+dot], fill="#102a43")
+                draw.ellipse([cx+37-r, cy+37-r, cx+37+r, cy+37+r], fill="#102a43")
+            # Top-left & Bottom-right dots
             if val >= 2:
-                draw.ellipse([cx+14, cy+14, cx+14+dot, cy+14+dot], fill="#102a43")
-                draw.ellipse([cx+50, cy+50, cx+50+dot, cy+50+dot], fill="#102a43")
+                draw.ellipse([cx+20-r, cy+20-r, cx+20+r, cy+20+r], fill="#102a43")
+                draw.ellipse([cx+55-r, cy+55-r, cx+55+r, cy+55+r], fill="#102a43")
+            # Top-right & Bottom-left dots
             if val >= 4:
-                draw.ellipse([cx+50, cy+14, cx+50+dot, cy+14+dot], fill="#102a43")
-                draw.ellipse([cx+14, cy+50, cx+14+dot, cy+14+dot], fill="#102a43")
+                draw.ellipse([cx+55-r, cy+20-r, cx+55+r, cy+20+r], fill="#102a43")
+                draw.ellipse([cx+20-r, cy+55-r, cx+20+r, cy+55+r], fill="#102a43")
+            # Middle-left & Middle-right dots (for 6)
             if val == 6:
-                draw.ellipse([cx+14, cy+32, cx+14+dot, cy+32+dot], fill="#102a43")
-                draw.ellipse([cx+50, cy+32, cx+50+dot, cy+32+dot], fill="#102a43")
+                draw.ellipse([cx+20-r, cy+37-r, cx+20+r, cy+37+r], fill="#102a43")
+                draw.ellipse([cx+55-r, cy+37-r, cx+55+r, cy+37+r], fill="#102a43")
         return total, img
 
     if st.session_state.dice_image is None:
