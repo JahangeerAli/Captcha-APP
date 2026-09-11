@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 # =========================================================
-# CUSTOM CSS & STYLING (Enhanced & Modern UI)
+# CUSTOM CSS & STYLING (Bold, Colorful & Modern UI)
 # =========================================================
 st.markdown(
     """
@@ -89,6 +89,46 @@ st.markdown(
         border-radius: 18px;
         padding: 24px;
         box-shadow: 0 4px 15px rgba(252, 129, 129, 0.15);
+    }
+
+    /* --- CUSTOM VIBRANT BUTTONS STYLING --- */
+    .stButton > button {
+        font-weight: 800 !important;
+        border-radius: 12px !important;
+        padding: 0.6rem 1.2rem !important;
+        border: none !important;
+        color: white !important;
+        background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%) !important;
+        box-shadow: 0 4px 14px rgba(49, 130, 206, 0.35) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(49, 130, 206, 0.5) !important;
+        background: linear-gradient(135deg, #2b6cb0 0%, #2c5282 100%) !important;
+    }
+
+    /* Make Radio / Activity Selection Buttons Bold & Colorful */
+    div.row-widget.stRadio > div {
+        background: #e2e8f0;
+        padding: 8px;
+        border-radius: 16px;
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+    }
+    
+    div.row-widget.stRadio label {
+        font-size: 16px !important;
+        font-weight: 800 !important;
+        color: #102a43 !important;
+        padding: 8px 18px !important;
+        border-radius: 12px !important;
+        transition: all 0.2s ease-in-out;
+    }
+
+    div.row-widget.stRadio label:hover {
+        background-color: rgba(255, 255, 255, 0.7);
+        color: #2b6cb0 !important;
     }
 
     .footer {
@@ -314,7 +354,7 @@ elif activity_tab == "🎲 Dice Dot Counter":
             val = random.randint(1, 6)
             total += val
             draw.rectangle([cx, cy, cx+75, cy+75], fill="#ffffff", outline="#94a3b8", width=3)
-            r = 4  # Dot radius helper to avoid coordinate out-of-bounds error
+            r = 4  # Dot radius helper
             
             # Center dot
             if val in [1, 3, 5]: 
