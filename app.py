@@ -133,23 +133,23 @@ st.markdown(
         background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* --- ULTRA-LARGE, COLORFUL & HIGHLIGHTED RADIO BUTTONS --- */
+    /* --- GIANT RADIO BUTTONS MATCHING WHITE HEADINGS --- */
     div.row-widget.stRadio > div[role="radiogroup"] {
         background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-        padding: 20px 25px !important;
+        padding: 25px 30px !important;
         border-radius: 24px !important;
-        border: 3p solid #38bdf8 !important;
+        border: 3px solid #38bdf8 !important;
         box-shadow: 0 12px 35px rgba(56, 189, 248, 0.25) !important;
         display: flex !important;
-        gap: 25px !important;
+        gap: 30px !important;
     }
     
     div.row-widget.stRadio label {
-        font-size: 26px !important;
+        font-size: 30px !important;
         font-weight: 900 !important;
         color: #ffffff !important;
         background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-        padding: 20px 40px !important;
+        padding: 22px 45px !important;
         border-radius: 18px !important;
         border: 3px solid rgba(56, 189, 248, 0.5) !important;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
