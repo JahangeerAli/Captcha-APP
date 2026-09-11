@@ -9,8 +9,9 @@ import base64
 # =========================================================
 # PAGE CONFIGURATION
 # =========================================================
+
 st.set_page_config(
-    page_title="Can AI Beat You? | Multi-Activity Challenge",
+    page_title="Can AI Beat You? | Human vs AI Challenge",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -19,89 +20,132 @@ st.set_page_config(
 # =========================================================
 # CUSTOM CSS & STYLING
 # =========================================================
+
 st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(135deg, #f4f8fb 0%, #ffffff 50%, #fef7ed 100%);
+        background: linear-gradient(135deg, #f0f4f8 0%, #ffffff 50%, #fef6ee 100%);
         font-family: 'Inter', sans-serif;
     }
     
     .top-header {
-        background: linear-gradient(90deg, #142957, #203d78);
-        padding: 16px 28px;
-        border-radius: 0 0 18px 18px;
+        background: linear-gradient(90deg, #0f2027, #203a43, #2c5364);
+        padding: 20px 30px;
+        border-radius: 16px;
         color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 25px;
-        box-shadow: 0 5px 20px rgba(20, 41, 87, 0.15);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     
     .brand {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: 800;
+        letter-spacing: 0.5px;
     }
     
     .student-info {
         font-size: 15px;
         font-weight: 600;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 6px 15px;
+        border-radius: 30px;
+        backdrop-filter: blur(5px);
+    }
+
+    .hero-title {
+        font-size: 48px;
+        font-weight: 900;
+        color: #102a43;
+        margin-bottom: 0;
+    }
+
+    .hero-subtitle {
+        font-size: 22px;
+        font-weight: 700;
+        color: #334e68;
+        margin-top: 5px;
+    }
+
+    .hero-description {
+        font-size: 16px;
+        color: #486581;
+        line-height: 1.6;
+        margin-top: 15px;
     }
 
     .card {
         background: white;
-        border: 1px solid #dce7f5;
-        border-radius: 18px;
+        border: 1px solid #d9e2ec;
+        border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 6px 20px rgba(25, 55, 100, 0.06);
+        box-shadow: 0 6px 20px rgba(16, 42, 67, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         margin-bottom: 15px;
     }
-
-    .human-box {
-        background: #f0fff4;
-        border: 2px solid #8ce3bb;
-        border-radius: 18px;
-        padding: 22px;
-    }
-
-    .ai-box {
-        background: #fff0f2;
-        border: 2px solid #ff9aaa;
-        border-radius: 18px;
-        padding: 22px;
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16, 42, 67, 0.1);
     }
 
     .score-card {
         background: white;
         border-radius: 16px;
-        padding: 18px;
+        padding: 20px;
         text-align: center;
-        border: 1px solid #dce7f5;
-        box-shadow: 0 4px 15px rgba(30, 70, 120, 0.05);
+        border: 1px solid #d9e2ec;
+        box-shadow: 0 4px 15px rgba(16, 42, 67, 0.05);
     }
 
     .score-number {
-        font-size: 38px;
+        font-size: 42px;
         font-weight: 900;
-        color: #153e8c;
+        color: #0f2027;
         margin: 5px 0;
     }
 
     .score-label {
         font-weight: 700;
-        color: #52627f;
-        font-size: 13px;
+        color: #627d98;
+        font-size: 14px;
         text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .human-title {
+        color: #107c41;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .ai-title {
+        color: #d64545;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .section-title {
+        color: #102a43;
+        font-size: 24px;
+        font-weight: 800;
+        margin: 25px 0 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .footer {
-        background: #142957;
+        background: #0f2027;
         color: white;
         text-align: center;
-        padding: 20px;
-        border-radius: 18px;
-        margin-top: 30px;
+        padding: 25px;
+        border-radius: 16px;
+        margin-top: 40px;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
     }
     </style>
     """,
@@ -111,16 +155,15 @@ st.markdown(
 # =========================================================
 # SESSION STATE INITIALIZATION
 # =========================================================
+
 defaults = {
     "human_score": 0,
     "ai_score": 0,
     "rounds": 0,
-    "dice_image": None, "dice_total": 0, "dice_result": "",
-    "word_image": None, "word_text": "", "word_result": "",
-    "order_image": None, "order_sequence": [], "order_result": "",
-    "fool_image": None, "fool_ans": "", "fool_result": "",
-    "animal_image": None, "animal_count": 0, "animal_target": "", "animal_result": "",
-    "pattern_image": None, "pattern_target": "", "pattern_result": ""
+    "captcha_text": "",
+    "captcha_image": None,
+    "result": "",
+    "ai_answer": ""
 }
 
 for key, val in defaults.items():
@@ -128,10 +171,14 @@ for key, val in defaults.items():
         st.session_state[key] = val
 
 # =========================================================
-# SIDEBAR CONFIGURATION
+# SIDEBAR - API CONFIGURATION
 # =========================================================
+
 with st.sidebar:
-    st.markdown("## ⚙️ AI Configuration")
+    st.markdown("## ⚙️ Configuration")
+    st.markdown("Enter your **Groq API Key** below or configure it in Streamlit secrets.")
+    
+    # Try fetching from secrets first
     secret_key = ""
     try:
         secret_key = st.secrets.get("GROQ_API_KEY", "")
@@ -144,465 +191,335 @@ with st.sidebar:
         type="password",
         placeholder="gsk_..."
     )
+    
     st.markdown("---")
-    st.markdown("### 💡 Instructions")
-    st.info("Switch between activities using the top pill buttons, solve challenges, and test Groq Vision AI!")
+    st.markdown("### 👨‍🎓 Developer Details")
+    st.markdown("**CF Name:** Jahangeer Ali")
+    st.markdown("**ID:** MRBICF2003")
+    
+    st.markdown("---")
+    st.info("💡 **Tip:** Generate a new CAPTCHA and test your visual perception against Groq Vision AI!")
 
+# Initialize Groq Client
 client = None
 groq_available = False
+
 if api_key_input:
     try:
         client = Groq(api_key=api_key_input)
         groq_available = True
     except Exception:
-        pass
+        client = None
+        groq_available = False
 
 # =========================================================
 # HEADER SECTION
 # =========================================================
+
 st.markdown(
     """
     <div class="top-header">
         <div class="brand">🤖 Can AI Beat You?</div>
-        <div class="student-info">CF Name: Jahangeer Ali &nbsp;&nbsp; | &nbsp;&nbsp; ID: MRBICF2003</div>
+        <div class="student-info">CF Name: Jahangeer Ali &nbsp;|&nbsp; ID: MRBICF2003</div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
 # =========================================================
-# LIVE SCOREBOARD
+# HERO SECTION
 # =========================================================
-s1, s2, s3 = st.columns(3)
+
+hero_left, hero_right = st.columns([1.35, 1], gap="large")
+
+with hero_left:
+    st.markdown(
+        """
+        <div class="hero-title">Can AI Beat You?</div>
+        <div class="hero-subtitle">The Ultimate Human vs AI Challenge</div>
+        <div class="hero-description">
+            CAPTCHA challenges are designed to distinguish humans from automated systems by testing visual cognitive perception.<br><br>
+            In this interactive project, solve dynamic challenges yourself, then challenge a high-performance Vision AI model to beat your score!<br><br>
+            <b>Who will reign supreme — Human intuition or Artificial Intelligence?</b>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+with hero_right:
+    st.markdown(
+        """
+        <div class="card">
+            <h3 style="color:#102a43; margin-top:0;">🔐 AI Connection Status</h3>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    if groq_available:
+        st.success("🟢 Groq API Connected Successfully!")
+    else:
+        st.warning("⚠️ Please provide your Groq API key in the sidebar to activate AI solver.")
+        
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# =========================================================
+# SCOREBOARD
+# =========================================================
+
+st.markdown('<div class="section-title">📊 Live Scoreboard</div>', unsafe_allow_html=True)
+
+s1, s2, s3 = st.columns(3, gap="medium")
+
 with s1:
-    st.markdown(f'<div class="score-card"><div style="color:#149a68;font-size:18px;font-weight:800;">👤 HUMAN</div><div class="score-number">{st.session_state.human_score}</div><div class="score-label">Correct Answers</div></div>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="score-card">
+            <div class="human-title">👤 HUMAN SCORE</div>
+            <div class="score-number">{st.session_state.human_score}</div>
+            <div class="score-label">Correct Answers</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 with s2:
-    st.markdown(f'<div class="score-card"><div style="color:#e84d62;font-size:18px;font-weight:800;">🤖 AI</div><div class="score-number">{st.session_state.ai_score}</div><div class="score-label">Correct Answers</div></div>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="score-card">
+            <div class="ai-title">🤖 AI SCORE</div>
+            <div class="score-number">{st.session_state.ai_score}</div>
+            <div class="score-label">Correct Answers</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 with s3:
-    st.markdown(f'<div class="score-card"><div style="color:#a36a00;font-size:18px;font-weight:800;">🎮 ROUNDS</div><div class="score-number">{st.session_state.rounds}</div><div class="score-label">Challenges Played</div></div>', unsafe_allow_html=True)
-
-st.write("")
-
-# =========================================================
-# ACTIVITY SELECTION PILLS
-# =========================================================
-tabs = [
-    "🎲 Dice Count", 
-    "🔤 Hidden Word", 
-    "🔢 Click in Order", 
-    "😲 Don't Be Fooled", 
-    "🐾 Animal Grid", 
-    "🧩 Pattern Fixer"
-]
-
-selected_tab = st.radio("Activities", tabs, horizontal=True, label_visibility="collapsed")
-st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="score-card">
+            <div style="color:#b7791f; font-size:18px; font-weight:800;">🎮 TOTAL ROUNDS</div>
+            <div class="score-number">{st.session_state.rounds}</div>
+            <div class="score-label">Challenges Played</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # =========================================================
-# HELPER: GROQ VISION CALL
+# CAPTCHA GENERATOR FUNCTION
 # =========================================================
-def ask_groq_vision(image, prompt):
-    if not groq_available or client is None:
-        return None, "Groq API key not provided."
+
+def create_captcha():
+    characters = string.ascii_uppercase + string.digits
+    text = "".join(random.choice(characters) for _ in range(5))
+
+    width, height = 440, 160
+    image = Image.new("RGB", (width, height), "#f0f4f8")
+    draw = ImageDraw.Draw(image)
+
+    # Background noise dots
+    for _ in range(250):
+        x = random.randint(0, width)
+        y = random.randint(0, height)
+        draw.ellipse((x, y, x + 2, y + 2), fill="#bcccdc")
+
+    # Background noise lines
+    for _ in range(10):
+        x1, y1 = random.randint(0, width), random.randint(0, height)
+        x2, y2 = random.randint(0, width), random.randint(0, height)
+        draw.line((x1, y1, x2, y2), fill="#9fb3c8", width=2)
+
     try:
-        buffer = io.BytesIO()
-        image.save(buffer, format="PNG")
-        image_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        font = ImageFont.truetype("DejaVuSans-Bold.ttf", 52)
+    except:
+        font = ImageFont.load_default()
 
-        response = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
-                ]
-            }],
-            temperature=0
+    x = 45
+    for char in text:
+        y = random.randint(35, 60)
+        draw.text(
+            (x, y),
+            char,
+            fill=random.choice(["#102a43", "#9b2c2c", "#276749", "#b7791f"]),
+            font=font
         )
-        return response.choices[0].message.content.strip(), None
-    except Exception as e:
-        return None, str(e)
+        x += 70
+
+    return text, image
+
+def new_captcha():
+    text, image = create_captcha()
+    st.session_state.captcha_text = text
+    st.session_state.captcha_image = image
+    st.session_state.result = ""
+    st.session_state.ai_answer = ""
+
+if st.session_state.captcha_image is None:
+    new_captcha()
 
 # =========================================================
-# 1. DICE COUNT
+# INTERACTIVE GAME SECTION
 # =========================================================
-if selected_tab == "🎲 Dice Count":
-    st.markdown("### 🎲 Dice Dot Counter")
-    st.markdown("Count every dot on every die in the picture! Easy for you — almost impossible for a computer.")
 
-    def gen_dice():
-        img = Image.new("RGB", (420, 260), "#f8fafc")
-        draw = ImageDraw.Draw(img)
-        total = 0
-        for cx, cy in [(40, 40), (180, 50), (90, 140), (230, 130)]:
-            val = random.randint(1, 6)
-            total += val
-            draw.rectangle([cx, cy, cx+70, cy+70], fill="#ffffff", outline="#cbd5e1", width=3)
-            dot = 6
-            if val in [1, 3, 5]: 
-                draw.ellipse([cx+32, cy+32, cx+32+dot, cy+32+dot], fill="#142957")
-            if val >= 2:
-                draw.ellipse([cx+12, cy+12, cx+12+dot, cy+12+dot], fill="#142957")
-                draw.ellipse([cx+48, cy+48, cx+48+dot, cy+48+dot], fill="#142957")
-            if val >= 4:
-                draw.ellipse([cx+48, cy+12, cx+48+dot, cy+12+dot], fill="#142957")
-                draw.ellipse([cx+12, cy+48, cx+12+dot, cy+48+dot], fill="#142957")
-            if val == 6:
-                draw.ellipse([cx+12, cy+30, cx+12+dot, cy+30+dot], fill="#142957")
-                draw.ellipse([cx+48, cy+30, cx+48+dot, cy+30+dot], fill="#142957")
-        return total, img
+st.markdown('<div class="section-title">🧩 Challenge Arena</div>', unsafe_allow_html=True)
 
-    if st.session_state.dice_image is None:
-        st.session_state.dice_total, st.session_state.dice_image = gen_dice()
+game_left, game_right = st.columns([1.3, 1], gap="large")
 
-    c1, c2 = st.columns(2, gap="large")
-    with c1:
-        st.markdown('<div class="human-box"><b>👤 Your Turn</b>', unsafe_allow_html=True)
-        st.image(st.session_state.dice_image, use_container_width=True)
-        guess = st.number_input("Total dots?", 1, 30, 10, key="d_in")
-        colA, colB = st.columns(2)
-        with colA:
-            if st.button("✅ Check Answer", key="d_chk", use_container_width=True):
-                st.session_state.rounds += 1
-                if int(guess) == st.session_state.dice_total:
-                    st.session_state.human_score += 1
-                    st.session_state.dice_result = ("correct", f"Correct! Total dots were {st.session_state.dice_total}.")
-                else:
-                    st.session_state.dice_result = ("wrong", f"Incorrect! Total dots were {st.session_state.dice_total}.")
-        with colB:
-            if st.button("🔄 New Dice", key="d_new", use_container_width=True):
-                st.session_state.dice_total, st.session_state.dice_image = gen_dice()
-                st.session_state.dice_result = ""
-                st.rerun()
-        if st.session_state.dice_result:
-            t, m = st.session_state.dice_result
-            st.success(m) if t == "correct" else st.error(m)
-        st.markdown('</div>', unsafe_allow_html=True)
+with game_left:
+    st.markdown(
+        """
+        <div class="card">
+            <h3 style="color:#102a43; margin-top:0;">Your Turn (Human)</h3>
+            <p>Inspect the generated CAPTCHA code below, type what you see, and verify your answer.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI count every dot correctly?</p></div>', unsafe_allow_html=True)
-        if st.button("Ask AI to Count 🤖", key="d_ai", use_container_width=True):
-            with st.spinner("AI counting..."):
-                ans, err = ask_groq_vision(st.session_state.dice_image, "Count exact total number of dots on all dice. Return ONLY integer.")
-                if err: 
-                    st.error(err)
-                else:
-                    st.info(f"AI Output: {ans}")
-                    if str(st.session_state.dice_total) in ans:
+    st.image(st.session_state.captcha_image, use_container_width=True)
+
+    answer = st.text_input(
+        "Enter CAPTCHA Code",
+        placeholder="Type the 5 characters...",
+        key="captcha_input"
+    )
+
+    col1, col2 = st.columns(2)
+    with col1:
+        verify = st.button("✅ Verify Answer", use_container_width=True, type="primary")
+    with col2:
+        regenerate = st.button("🔄 New Challenge", use_container_width=True)
+
+    if regenerate:
+        new_captcha()
+        st.rerun()
+
+    if verify:
+        st.session_state.rounds += 1
+        if answer.strip().upper() == st.session_state.captcha_text:
+            st.session_state.human_score += 1
+            st.session_state.result = ("correct", "Brilliant! Your answer is absolutely correct.")
+        else:
+            st.session_state.result = ("wrong", f"Oops! Incorrect. The correct code was {st.session_state.captcha_text}.")
+
+    if st.session_state.result:
+        res_type, res_msg = st.session_state.result
+        if res_type == "correct":
+            st.success("🎉 " + res_msg)
+        else:
+            st.error("❌ " + res_msg)
+
+with game_right:
+    st.markdown(
+        """
+        <div class="card">
+            <h3 style="color:#d64545; margin-top:0;">🤖 AI's Turn</h3>
+            <p>Send the active CAPTCHA image to Groq Vision model and check if AI can read it accurately.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    ask_ai = st.button("🤖 Let AI Solve Challenge", use_container_width=True, type="secondary")
+
+    if ask_ai:
+        if not groq_available:
+            st.error("Groq API key is missing! Please input it in the sidebar.")
+        else:
+            with st.spinner("Groq Vision AI is analyzing the CAPTCHA image..."):
+                try:
+                    buffer = io.BytesIO()
+                    st.session_state.captcha_image.save(buffer, format="PNG")
+                    image_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+                    response = client.chat.completions.create(
+                        model="meta-llama/llama-4-scout-17b-16e-instruct",
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": "Read the text in this CAPTCHA image precisely. Return ONLY the 5 alphanumeric characters you see without any extra explanation."
+                                    },
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {
+                                            "url": f"data:image/png;base64,{image_base64}"
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        temperature=0
+                    )
+
+                    ai_text = response.choices[0].message.content.strip()
+                    st.session_state.ai_answer = ai_text
+
+                    cleaned_ai = "".join(c for c in ai_text.upper() if c.isalnum())
+                    
+                    if cleaned_ai == st.session_state.captcha_text:
                         st.session_state.ai_score += 1
-                        st.success("AI got it right!")
+                        st.success(f"🤖 AI Solved It Correctly! Answer: **{ai_text}**")
+                    else:
+                        st.error(f"🤖 AI Answered: **{ai_text}** (Target was {st.session_state.captcha_text})")
+
+                except Exception as e:
+                    st.error(f"API Error encountered: {str(e)}")
 
 # =========================================================
-# 2. HIDDEN WORD
+# FEATURES & PROJECT INFO SECTION
 # =========================================================
-elif selected_tab == "🔤 Hidden Word":
-    st.markdown("### 🔤 Warped Word Reader")
-    st.markdown("Read the wiggly, wobbly letters hiding in the noisy picture!")
 
-    def gen_word():
-        text = "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
-        img = Image.new("RGB", (420, 260), "#f8fafc")
-        draw = ImageDraw.Draw(img)
-        for _ in range(12):
-            draw.line([random.randint(0,420), random.randint(0,260), random.randint(0,420), random.randint(0,260)], fill="#94a3b8", width=2)
-        try: 
-            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 50)
-        except: 
-            font = ImageFont.load_default()
-        x = 60
-        for char in text:
-            draw.text((x, random.randint(80, 110)), char, fill=random.choice(["#142957", "#c53c54", "#17815a"]), font=font)
-            x += 75
-        return text, img
+st.markdown('<div class="section-title">✨ Key Features & Architecture</div>', unsafe_allow_html=True)
 
-    if st.session_state.word_image is None:
-        st.session_state.word_text, st.session_state.word_image = gen_word()
+f1, f2, f3 = st.columns(3, gap="medium")
 
-    c1, c2 = st.columns(2, gap="large")
-    with c1:
-        st.markdown('<div class="human-box"><b>👤 Your Turn</b>', unsafe_allow_html=True)
-        st.image(st.session_state.word_image, use_container_width=True)
-        u_w = st.text_input("Type letters you see:", key="w_in")
-        colA, colB = st.columns(2)
-        with colA:
-            if st.button("✅ Check Word", key="w_chk", use_container_width=True):
-                st.session_state.rounds += 1
-                if u_w.strip().upper() == st.session_state.word_text:
-                    st.session_state.human_score += 1
-                    st.session_state.word_result = ("correct", "Spot on! Great reading.")
-                else:
-                    st.session_state.word_result = ("wrong", f"Incorrect! Word was {st.session_state.word_text}.")
-        with colB:
-            if st.button("🔄 New Word", key="w_new", use_container_width=True):
-                st.session_state.word_text, st.session_state.word_image = gen_word()
-                st.session_state.word_result = ""
-                st.rerun()
-        if st.session_state.word_result:
-            t, m = st.session_state.word_result
-            st.success(m) if t == "correct" else st.error(m)
-        st.markdown('</div>', unsafe_allow_html=True)
+with f1:
+    st.markdown(
+        """
+        <div class="card">
+            <h3>🧩 Dynamic CAPTCHA</h3>
+            <p>Random characters, variable colors, line filters, and noise patterns generated on-the-fly for every round.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI read through noise?</p></div>', unsafe_allow_html=True)
-        if st.button("Ask AI to Read 🤖", key="w_ai", use_container_width=True):
-            with st.spinner("AI reading..."):
-                ans, err = ask_groq_vision(st.session_state.word_image, "Read 4 characters hidden behind scribble lines. Return ONLY the 4 characters.")
-                if err: 
-                    st.error(err)
-                else:
-                    st.info(f"AI Output: {ans}")
-                    if st.session_state.word_text in ans.upper():
-                        st.session_state.ai_score += 1
-                        st.success("AI read correctly!")
+with f2:
+    st.markdown(
+        """
+        <div class="card">
+            <h3>⚖️ Real-Time Metrics</h3>
+            <p>Live session tracking comparing human accuracy against automated vision intelligence.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-# =========================================================
-# 3. CLICK IN ORDER
-# =========================================================
-elif selected_tab == "🔢 Click in Order":
-    st.markdown("### 🔢 Click-in-Order Challenge")
-    st.markdown("Find the numbers 1 through 5 hiding in the picture, then list them in order!")
-
-    def gen_order():
-        img = Image.new("RGB", (420, 260), "#f8fafc")
-        draw = ImageDraw.Draw(img)
-        nums = [1, 2, 3, 4, 5]
-        random.shuffle(nums)
-        coords = [(60, 60), (220, 40), (120, 150), (280, 140), (50, 180)]
-        try: 
-            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 36)
-        except: 
-            font = ImageFont.load_default()
-        for idx, n in enumerate(nums):
-            px, py = coords[idx]
-            draw.rectangle([px, py, px+55, py+55], fill="#ffffff", outline="#153e8c", width=2)
-            draw.text((px+15, py+8), str(n), fill="#153e8c", font=font)
-        return nums, img
-
-    if st.session_state.order_image is None:
-        st.session_state.order_sequence, st.session_state.order_image = gen_order()
-
-    c1, c2 = st.columns(2, gap="large")
-    with c1:
-        st.markdown('<div class="human-box"><b>👤 Your Turn</b>', unsafe_allow_html=True)
-        st.image(st.session_state.order_image, use_container_width=True)
-        u_seq = st.text_input("Type numbers in order (e.g. 1,2,3,4,5):", key="o_in")
-        colA, colB = st.columns(2)
-        with colA:
-            if st.button("✅ Verify Order", key="o_chk", use_container_width=True):
-                st.session_state.rounds += 1
-                correct_str = ",".join(map(str, sorted(st.session_state.order_sequence)))
-                if u_seq.replace(" ", "") == correct_str:
-                    st.session_state.human_score += 1
-                    st.session_state.order_result = ("correct", "Correct sequence order!")
-                else:
-                    st.session_state.order_result = ("wrong", f"Incorrect! Order was {correct_str}.")
-        with colB:
-            if st.button("🔄 New Puzzle", key="o_new", use_container_width=True):
-                st.session_state.order_sequence, st.session_state.order_image = gen_order()
-                st.session_state.order_result = ""
-                st.rerun()
-        if st.session_state.order_result:
-            t, m = st.session_state.order_result
-            st.success(m) if t == "correct" else st.error(m)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI find order?</p></div>', unsafe_allow_html=True)
-        if st.button("Ask AI to Find Order 🤖", key="o_ai", use_container_width=True):
-            with st.spinner("AI analyzing..."):
-                ans, err = ask_groq_vision(st.session_state.order_image, "List all numbers in ascending order separated by commas.")
-                if err: 
-                    st.error(err)
-                else:
-                    st.info(f"AI Output: {ans}")
-                    if "1,2,3,4,5" in ans.replace(" ", ""):
-                        st.session_state.ai_score += 1
-                        st.success("AI ordered correctly!")
-
-# =========================================================
-# 4. DON'T BE FOOLED
-# =========================================================
-elif selected_tab == "😲 Don't Be Fooled":
-    st.markdown("### 😲 Don't Be Fooled Challenge")
-    st.markdown("Spot the trick question where computers get confused.")
-
-    def gen_fool():
-        img = Image.new("RGB", (420, 260), "#f8fafc")
-        draw = ImageDraw.Draw(img)
-        draw.ellipse([80, 70, 160, 150], fill="#c53c54")
-        draw.rectangle([220, 70, 300, 150], fill="#153e8c")
-        try: 
-            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 22)
-        except: 
-            font = ImageFont.load_default()
-        draw.text((70, 180), "How many circles?", fill="#153e8c", font=font)
-        return "1", img
-
-    if st.session_state.fool_image is None:
-        st.session_state.fool_ans, st.session_state.fool_image = gen_fool()
-
-    c1, c2 = st.columns(2, gap="large")
-    with c1:
-        st.markdown('<div class="human-box"><b>👤 Your Turn</b>', unsafe_allow_html=True)
-        st.image(st.session_state.fool_image, use_container_width=True)
-        choice = st.radio("Select answer:", ["1 Circle, 1 Square", "2 Circles", "2 Squares"], key="f_rad")
-        if st.button("✅ Submit", key="f_chk", use_container_width=True):
-            st.session_state.rounds += 1
-            if choice == "1 Circle, 1 Square":
-                st.session_state.human_score += 1
-                st.session_state.fool_result = ("correct", "Great job not getting fooled!")
-            else:
-                st.session_state.fool_result = ("wrong", "Fooled! There is 1 circle and 1 square.")
-        if st.session_state.fool_result:
-            t, m = st.session_state.fool_result
-            st.success(m) if t == "correct" else st.error(m)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Will AI hallucinate shapes?</p></div>', unsafe_allow_html=True)
-        if st.button("Ask AI to Analyze 🤖", key="f_ai", use_container_width=True):
-            with st.spinner("AI inspecting..."):
-                ans, err = ask_groq_vision(st.session_state.fool_image, "How many circles and how many squares are in this image?")
-                if err: 
-                    st.error(err)
-                else: 
-                    st.info(f"AI Output: {ans}")
-
-# =========================================================
-# 5. ANIMAL GRID
-# =========================================================
-elif selected_tab == "🐾 Animal Grid":
-    st.markdown("### 🐾 Animal / Symbol Grid")
-    st.markdown("Count specific target icons in the grid.")
-
-    def gen_grid():
-        img = Image.new("RGB", (420, 260), "#f8fafc")
-        draw = ImageDraw.Draw(img)
-        target = "★"
-        actual = 0
-        try: 
-            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 28)
-        except: 
-            font = ImageFont.load_default()
-        for r in range(3):
-            for c in range(4):
-                sym = random.choice(["★", "■", "▲", "●"])
-                if sym == target: 
-                    actual += 1
-                draw.text((60 + c*80, 40 + r*70), sym, fill="#153e8c", font=font)
-        return actual, target, img
-
-    if st.session_state.animal_image is None:
-        st.session_state.animal_count, st.session_state.animal_target, st.session_state.animal_image = gen_grid()
-
-    c1, c2 = st.columns(2, gap="large")
-    with c1:
-        st.markdown('<div class="human-box"><b>👤 Your Turn</b>', unsafe_allow_html=True)
-        st.image(st.session_state.animal_image, use_container_width=True)
-        u_cnt = st.number_input(f"Count stars ('{st.session_state.animal_target}'):", 0, 12, 2, key="g_in")
-        colA, colB = st.columns(2)
-        with colA:
-            if st.button("✅ Check Grid", key="g_chk", use_container_width=True):
-                st.session_state.rounds += 1
-                if int(u_cnt) == st.session_state.animal_count:
-                    st.session_state.human_score += 1
-                    st.session_state.animal_result = ("correct", f"Correct! There were {st.session_state.animal_count} stars.")
-                else:
-                    st.session_state.animal_result = ("wrong", f"Incorrect! There were actually {st.session_state.animal_count} stars.")
-        with colB:
-            if st.button("🔄 New Grid", key="g_new", use_container_width=True):
-                st.session_state.animal_count, st.session_state.animal_target, st.session_state.animal_image = gen_grid()
-                st.session_state.animal_result = ""
-                st.rerun()
-        if st.session_state.animal_result:
-            t, m = st.session_state.animal_result
-            st.success(m) if t == "correct" else st.error(m)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI count grid items?</p></div>', unsafe_allow_html=True)
-        if st.button("Ask AI to Count Grid 🤖", key="g_ai", use_container_width=True):
-            with st.spinner("AI counting..."):
-                ans, err = ask_groq_vision(st.session_state.animal_image, f"Count how many star symbols ('{st.session_state.animal_target}') are in this grid. Return count number.")
-                if err: 
-                    st.error(err)
-                else:
-                    st.info(f"AI Output: {ans}")
-                    if str(st.session_state.animal_count) in ans:
-                        st.session_state.ai_score += 1
-                        st.success("AI counted correctly!")
-
-# =========================================================
-# 6. PATTERN FIXER
-# =========================================================
-elif selected_tab == "🧩 Pattern Fixer":
-    st.markdown("### 🧩 Pattern Fixer")
-    st.markdown("Look at shapes in a row, figure out the repeating pattern, and select what comes next!")
-
-    def gen_pattern():
-        pat = ["Circle", "Square", "Triangle"]
-        target = pat[0]
-        img = Image.new("RGB", (420, 260), "#f8fafc")
-        draw = ImageDraw.Draw(img)
-        try: 
-            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 20)
-        except: 
-            font = ImageFont.load_default()
-        for idx, s in enumerate(pat + [target]):
-            draw.rectangle([30 + idx*80, 60, 95 + idx*80, 125], fill="#ffffff", outline="#dce7f5", width=2)
-            draw.text((45 + idx*80, 85), s[:3], fill="#153e8c", font=font)
-        return target, img
-
-    if st.session_state.pattern_image is None:
-        st.session_state.pattern_target, st.session_state.pattern_image = gen_pattern()
-
-    c1, c2 = st.columns(2, gap="large")
-    with c1:
-        st.markdown('<div class="human-box"><b>👤 Your Turn</b>', unsafe_allow_html=True)
-        st.image(st.session_state.pattern_image, use_container_width=True)
-        choice = st.selectbox("Which shape comes next?", ["Circle", "Square", "Triangle"], key="p_sel")
-        colA, colB = st.columns(2)
-        with colA:
-            if st.button("✅ Check Pattern", key="p_chk", use_container_width=True):
-                st.session_state.rounds += 1
-                if choice == st.session_state.pattern_target:
-                    st.session_state.human_score += 1
-                    st.session_state.pattern_result = ("correct", "Correct! Pattern spotted.")
-                else:
-                    st.session_state.pattern_result = ("wrong", f"Incorrect! Next shape was {st.session_state.pattern_target}.")
-        with colB:
-            if st.button("🔄 New Pattern", key="p_new", use_container_width=True):
-                st.session_state.pattern_target, st.session_state.pattern_image = gen_pattern()
-                st.session_state.pattern_result = ""
-                st.rerun()
-        if st.session_state.pattern_result:
-            t, m = st.session_state.pattern_result
-            st.success(m) if t == "correct" else st.error(m)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI solve sequence logic?</p></div>', unsafe_allow_html=True)
-        if st.button("Ask AI to Solve Pattern 🤖", key="p_ai", use_container_width=True):
-            with st.spinner("AI analyzing pattern..."):
-                ans, err = ask_groq_vision(st.session_state.pattern_image, "What shape comes next in this repeating sequence? Return shape name.")
-                if err: 
-                    st.error(err)
-                else:
-                    st.info(f"AI Output: {ans}")
-                    if st.session_state.pattern_target.lower() in ans.lower():
-                        st.session_state.ai_score += 1
-                        st.success("AI solved pattern correctly!")
+with f3:
+    st.markdown(
+        """
+        <div class="card">
+            <h3>⚡ Groq Vision AI</h3>
+            <p>High-speed multimodal inference powered by state-of-the-art vision models via Groq API.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # =========================================================
 # FOOTER
 # =========================================================
+
 st.markdown(
     """
     <div class="footer">
-        🤖 <b>Can AI Beat You?</b> — Multi-Activity Challenge Suite<br><br>
-        <b>CF Name:</b> Jahangeer Ali &nbsp; | &nbsp; <b>ID:</b> MRBICF2003<br>
-        Built with Python, Streamlit, and Groq Vision AI
+        🤖 <b>Can AI Beat You?</b> — Human vs AI Cognitive Challenge<br><br>
+        <b>CF Name:</b> Jahangeer Ali &nbsp;|&nbsp; <b>ID:</b> MRBICF2003<br>
+        Built with Python, Streamlit, and Groq Vision API
     </div>
     """,
     unsafe_allow_html=True
