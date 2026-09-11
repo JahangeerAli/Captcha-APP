@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 # =========================================================
-# CUSTOM CSS & STYLING (Bold, Colorful & Modern UI)
+# CUSTOM CSS & STYLING (Bold, Colorful & Large UI Elements)
 # =========================================================
 st.markdown(
     """
@@ -109,26 +109,29 @@ st.markdown(
         background: linear-gradient(135deg, #2b6cb0 0%, #2c5282 100%) !important;
     }
 
-    /* Make Radio / Activity Selection Buttons Bold & Colorful */
-    div.row-widget.stRadio > div {
-        background: #e2e8f0;
-        padding: 8px;
-        border-radius: 16px;
-        box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+    /* --- LARGE & ATTRACTIVE ACTIVITY SELECTION RADIO BUTTONS --- */
+    div.row-widget.stRadio > div[role="radiogroup"] {
+        background: linear-gradient(135deg, #102a43 0%, #243b53 100%) !important;
+        padding: 14px 20px !important;
+        border-radius: 18px !important;
+        box-shadow: 0 8px 25px rgba(16, 42, 67, 0.25) !important;
+        gap: 20px !important;
     }
     
     div.row-widget.stRadio label {
-        font-size: 16px !important;
+        font-size: 19px !important;
         font-weight: 800 !important;
-        color: #102a43 !important;
-        padding: 8px 18px !important;
-        border-radius: 12px !important;
-        transition: all 0.2s ease-in-out;
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        padding: 12px 26px !important;
+        border-radius: 14px !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        transition: all 0.3s ease-in-out !important;
     }
 
     div.row-widget.stRadio label:hover {
-        background-color: rgba(255, 255, 255, 0.7);
-        color: #2b6cb0 !important;
+        background: rgba(255, 255, 255, 0.25) !important;
+        transform: translateY(-2px);
     }
 
     .footer {
