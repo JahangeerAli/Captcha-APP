@@ -28,14 +28,34 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
-    /* --- SIDEBAR STYLING --- */
+    /* --- ULTRA-MODERN SIDEBAR STYLING --- */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(180deg, #0b0f19 0%, #1e293b 100%) !important;
+        border-right: 1px solid rgba(56, 189, 248, 0.2);
+        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
     }
     
     [data-testid="stSidebar"] .stMarkdown {
         color: #f8fafc !important;
+    }
+
+    /* API Key Container Highlight in Sidebar */
+    .sidebar-api-box {
+        background: rgba(30, 41, 59, 0.85);
+        border: 2px solid #38bdf8;
+        padding: 16px;
+        border-radius: 16px;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        margin-bottom: 20px;
+    }
+
+    /* Style the text input box inside sidebar */
+    [data-testid="stSidebar"] input {
+        background-color: #0f172a !important;
+        color: #38bdf8 !important;
+        border: 1px solid #38bdf8 !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
     }
 
     /* --- TOP BANNER --- */
@@ -159,7 +179,6 @@ st.markdown(
         background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%) !important;
     }
 
-    /* Slightly smaller text for a neat, balanced look */
     div[data-testid="stRadio"] label p,
     div[data-testid="stRadio"] label span {
         font-size: 16px !important;
@@ -198,10 +217,13 @@ for key, val in defaults.items():
         st.session_state[key] = val
 
 # =========================================================
-# SIDEBAR CONFIGURATION
+# SIDEBAR CONFIGURATION (Enhanced Styling)
 # =========================================================
 with st.sidebar:
     st.markdown("## ⚙️ Configuration")
+    
+    # Highlighted API Key Card
+    st.markdown('<div class="sidebar-api-box">', unsafe_allow_html=True)
     secret_key = ""
     try:
         secret_key = st.secrets.get("GROQ_API_KEY", "")
@@ -209,11 +231,12 @@ with st.sidebar:
         pass
 
     api_key_input = st.text_input(
-        "Groq API Key", 
+        "🔑 Groq API Key", 
         value=secret_key, 
         type="password",
         placeholder="gsk_..."
     )
+    st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("### 👨‍💻 Developer Details")
