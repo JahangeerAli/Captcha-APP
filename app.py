@@ -28,34 +28,55 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
-    /* --- ULTRA-MODERN SIDEBAR STYLING --- */
+    /* --- ULTRA-MODERN SIDEBAR STYLING & HIGH VISIBILITY TEXT --- */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0b0f19 0%, #1e293b 100%) !important;
-        border-right: 1px solid rgba(56, 189, 248, 0.2);
-        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+        border-right: 2px solid rgba(56, 189, 248, 0.3);
+        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.6);
     }
     
-    [data-testid="stSidebar"] .stMarkdown {
-        color: #f8fafc !important;
+    /* Make all sidebar text and paragraphs bright & bold */
+    [data-testid="stSidebar"] .stMarkdown, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] p {
+        color: #f1f5f9 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Make all sidebar headings vibrant and clear */
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3 {
+        color: #38bdf8 !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.5px;
+    }
+
+    /* Style sidebar input labels (like Groq API Key label) so they stand out brightly */
+    [data-testid="stSidebar"] label p {
+        color: #38bdf8 !important;
+        font-size: 17px !important;
+        font-weight: 900 !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     /* API Key Container Highlight in Sidebar */
     .sidebar-api-box {
-        background: rgba(30, 41, 59, 0.85);
+        background: rgba(15, 23, 42, 0.95);
         border: 2px solid #38bdf8;
-        padding: 16px;
+        padding: 18px;
         border-radius: 16px;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
         margin-bottom: 20px;
     }
 
     /* Style the text input box inside sidebar */
     [data-testid="stSidebar"] input {
-        background-color: #0f172a !important;
+        background-color: #0b0f19 !important;
         color: #38bdf8 !important;
-        border: 1px solid #38bdf8 !important;
+        border: 2px solid #38bdf8 !important;
         border-radius: 10px !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
+        font-size: 16px !important;
     }
 
     /* --- TOP BANNER --- */
@@ -217,7 +238,7 @@ for key, val in defaults.items():
         st.session_state[key] = val
 
 # =========================================================
-# SIDEBAR CONFIGURATION (Enhanced Styling)
+# SIDEBAR CONFIGURATION (Enhanced High-Visibility Styling)
 # =========================================================
 with st.sidebar:
     st.markdown("## ⚙️ Configuration")
