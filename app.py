@@ -28,37 +28,48 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
     
+    /* --- SIDEBAR STYLING --- */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-testid="stSidebar"] .stMarkdown {
+        color: #f8fafc !important;
+    }
+
+    /* --- LARGER & BOLDER TOP BANNER --- */
     .top-banner {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        padding: 24px 35px;
-        border-radius: 20px;
+        padding: 35px 45px;
+        border-radius: 24px;
         color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 35px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(256, 256, 256, 0.15);
     }
     
     .brand-title {
-        font-size: 28px;
+        font-size: 34px;
         font-weight: 900;
-        letter-spacing: 0.5px;
-        background: linear-gradient(90deg, #38bdf8, #818cf8);
+        letter-spacing: 0.8px;
+        background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
     .student-badge {
-        background: rgba(56, 189, 248, 0.1);
-        padding: 8px 16px;
-        border-radius: 25px;
-        font-size: 14px;
-        font-weight: 700;
+        background: rgba(56, 189, 248, 0.15);
+        padding: 12px 22px;
+        border-radius: 30px;
+        font-size: 16px;
+        font-weight: 800;
         color: #38bdf8;
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        box-shadow: 0 6px 16px rgba(56, 189, 248, 0.2);
     }
 
     .score-card {
@@ -122,32 +133,32 @@ st.markdown(
         background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* --- GORGEOUS MODERN TAB-STYLE RADIO BUTTONS --- */
+    /* --- HUGE & CLEAR TAB-STYLE RADIO BUTTONS --- */
     div.row-widget.stRadio > div[role="radiogroup"] {
-        background: rgba(30, 41, 59, 0.8) !important;
-        padding: 10px 15px !important;
-        border-radius: 18px !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+        background: rgba(30, 41, 59, 0.9) !important;
+        padding: 15px 20px !important;
+        border-radius: 20px !important;
+        border: 2px solid rgba(56, 189, 248, 0.3) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
         display: flex !important;
-        gap: 15px !important;
+        gap: 20px !important;
     }
     
     div.row-widget.stRadio label {
-        font-size: 18px !important;
-        font-weight: 800 !important;
-        color: #f8fafc !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-        padding: 12px 28px !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        padding: 16px 35px !important;
+        border-radius: 14px !important;
+        border: 2px solid rgba(255, 255, 255, 0.15) !important;
         transition: all 0.3s ease-in-out !important;
     }
 
     div.row-widget.stRadio label:hover {
-        background: rgba(56, 189, 248, 0.2) !important;
+        background: rgba(56, 189, 248, 0.3) !important;
         border-color: #38bdf8 !important;
-        transform: translateY(-2px);
+        transform: translateY(-3px);
     }
 
     .footer {
@@ -331,7 +342,10 @@ if activity_tab == "🔐 CAPTCHA Visual Challenge":
 
         if st.session_state.captcha_result:
             t, m = st.session_state.captcha_result
-            st.success(m) if t == "correct" else st.error(m)
+            if t == "correct":
+                st.success(m)
+            else:
+                st.error(m)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c_ai:
@@ -420,7 +434,10 @@ elif activity_tab == "🎲 Dice Dot Counter":
 
         if st.session_state.dice_result:
             t, m = st.session_state.dice_result
-            st.success(m) if t == "correct" else st.error(m)
+            if t == "correct":
+                st.success(m)
+            else:
+                st.error(m)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c_ai:
