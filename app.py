@@ -133,38 +133,36 @@ st.markdown(
         background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* --- MATCHING ACTIVITY RADIO BUTTONS TO BLUE BUTTON STYLE --- */
-    div.row-widget.stRadio > div[role="radiogroup"] {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%) !important;
+    /* --- HIGHLY VISIBLE & ATTRACTIVE ACTIVITY RADIO BUTTONS --- */
+    div[data-testid="stRadio"] {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
         padding: 25px 35px !important;
-        border-radius: 24px !important;
-        border: 2px solid rgba(56, 189, 248, 0.3) !important;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5) !important;
-        display: flex !important;
-        gap: 25px !important;
+        border-radius: 20px !important;
+        border: 2px solid #38bdf8 !important;
+        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25) !important;
     }
-    
-    div.row-widget.stRadio label {
+
+    div[data-testid="stRadio"] label {
         background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
-        padding: 16px 32px !important;
-        border-radius: 30px !important; /* Pill shape like the requested button */
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        padding: 14px 28px !important;
+        border-radius: 35px !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
         box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
         cursor: pointer !important;
+        margin-right: 15px !important;
         transition: all 0.3s ease-in-out !important;
     }
 
-    div.row-widget.stRadio label:hover {
+    div[data-testid="stRadio"] label:hover {
         transform: translateY(-3px) !important;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.6) !important;
-        background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
+        box-shadow: 0 10px 25px rgba(56, 189, 248, 0.6) !important;
+        background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%) !important;
     }
 
-    /* Clear, bold white text matching the button style */
-    div.row-widget.stRadio label p, 
-    div.row-widget.stRadio label span,
-    div.row-widget.stRadio div {
-        font-size: 26px !important;
+    /* Target text inside radio buttons for bold clear view */
+    div[data-testid="stRadio"] label p,
+    div[data-testid="stRadio"] label span {
+        font-size: 20px !important;
         font-weight: 800 !important;
         color: #ffffff !important;
     }
