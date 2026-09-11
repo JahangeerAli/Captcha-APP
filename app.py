@@ -320,9 +320,9 @@ if activity_tab == "🔐 CAPTCHA Visual Challenge":
                 st.session_state.rounds += 1
                 if user_input.strip().upper() == st.session_state.captcha_text:
                     st.session_state.human_score += 1
-                    st.session_state.captcha_result = ("correct", "Spot on! Your human vision wins.")
+                    st.session_state.captcha_result = ("correct", "Correct!")
                 else:
-                    st.session_state.captcha_result = ("wrong", f"Incorrect! The code was {st.session_state.captcha_text}.")
+                    st.session_state.captcha_result = ("wrong", "Incorrect!")
         with col_btn2:
             if st.button("🔄 New CAPTCHA", key="cap_new", use_container_width=True):
                 st.session_state.captcha_text, st.session_state.captcha_image = generate_captcha()
@@ -353,9 +353,9 @@ if activity_tab == "🔐 CAPTCHA Visual Challenge":
                         st.info(f"**AI Output:** {ans}")
                         if st.session_state.captcha_text in ans.upper():
                             st.session_state.ai_score += 1
-                            st.success("AI successfully decoded the CAPTCHA!")
+                            st.success("Correct!")
                         else:
-                            st.warning("AI failed or hallucinated the text!")
+                            st.warning("Incorrect!")
         st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
@@ -409,9 +409,9 @@ elif activity_tab == "🎲 Dice Dot Counter":
                 st.session_state.rounds += 1
                 if int(dice_guess) == st.session_state.dice_total:
                     st.session_state.human_score += 1
-                    st.session_state.dice_result = ("correct", f"Correct! Total dots were {st.session_state.dice_total}.")
+                    st.session_state.dice_result = ("correct", "Correct!")
                 else:
-                    st.session_state.dice_result = ("wrong", f"Incorrect! Total dots were actually {st.session_state.dice_total}.")
+                    st.session_state.dice_result = ("wrong", "Incorrect!")
         with col_btn2:
             if st.button("🔄 New Dice", key="dice_new", use_container_width=True):
                 st.session_state.dice_total, st.session_state.dice_image = generate_dice()
@@ -442,9 +442,9 @@ elif activity_tab == "🎲 Dice Dot Counter":
                         st.info(f"**AI Output:** {ans}")
                         if str(st.session_state.dice_total) in ans:
                             st.session_state.ai_score += 1
-                            st.success("AI counted correctly!")
+                            st.success("Correct!")
                         else:
-                            st.warning("AI miscalculated the dot count!")
+                            st.warning("Incorrect!")
         st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
