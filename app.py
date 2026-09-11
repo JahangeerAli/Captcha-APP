@@ -158,7 +158,7 @@ if api_key_input:
         pass
 
 # =========================================================
-# HEADER SECTION (Original Style Restored)
+# HEADER SECTION
 # =========================================================
 st.markdown(
     """
@@ -171,7 +171,7 @@ st.markdown(
 )
 
 # =========================================================
-# LIVE SCOREBOARD (Original Style Restored)
+# LIVE SCOREBOARD
 # =========================================================
 s1, s2, s3 = st.columns(3)
 with s1:
@@ -240,13 +240,14 @@ if selected_tab == "🎲 Dice Count":
             total += val
             draw.rectangle([cx, cy, cx+70, cy+70], fill="#ffffff", outline="#cbd5e1", width=3)
             dot = 6
-            if val in [1, 3, 5]: draw.ellipse([cx+32, cy+32, cx+32+dot, cy+32+dot], fill="#142957")
+            if val in [1, 3, 5]: 
+                draw.ellipse([cx+32, cy+32, cx+32+dot, cy+32+dot], fill="#142957")
             if val >= 2:
                 draw.ellipse([cx+12, cy+12, cx+12+dot, cy+12+dot], fill="#142957")
                 draw.ellipse([cx+48, cy+48, cx+48+dot, cy+48+dot], fill="#142957")
             if val >= 4:
                 draw.ellipse([cx+48, cy+12, cx+48+dot, cy+12+dot], fill="#142957")
-                draw.ellipse([cx+12, cy+48, cx+12+dot, cy+12+dot], fill="#142957")
+                draw.ellipse([cx+12, cy+48, cx+12+dot, cy+48+dot], fill="#142957")
             if val == 6:
                 draw.ellipse([cx+12, cy+30, cx+12+dot, cy+30+dot], fill="#142957")
                 draw.ellipse([cx+48, cy+30, cx+48+dot, cy+30+dot], fill="#142957")
@@ -280,17 +281,17 @@ if selected_tab == "🎲 Dice Count":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI's Turn</b><p>Can AI count every dot correctly?</p>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI count every dot correctly?</p></div>', unsafe_allow_html=True)
         if st.button("Ask AI to Count 🤖", key="d_ai", use_container_width=True):
             with st.spinner("AI counting..."):
                 ans, err = ask_groq_vision(st.session_state.dice_image, "Count exact total number of dots on all dice. Return ONLY integer.")
-                if err: st.error(err)
+                if err: 
+                    st.error(err)
                 else:
                     st.info(f"AI Output: {ans}")
                     if str(st.session_state.dice_total) in ans:
                         st.session_state.ai_score += 1
                         st.success("AI got it right!")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 2. HIDDEN WORD
@@ -305,8 +306,10 @@ elif selected_tab == "🔤 Hidden Word":
         draw = ImageDraw.Draw(img)
         for _ in range(12):
             draw.line([random.randint(0,420), random.randint(0,260), random.randint(0,420), random.randint(0,260)], fill="#94a3b8", width=2)
-        try: font = ImageFont.truetype("DejaVuSans-Bold.ttf", 50)
-        except: font = ImageFont.load_default()
+        try: 
+            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 50)
+        except: 
+            font = ImageFont.load_default()
         x = 60
         for char in text:
             draw.text((x, random.randint(80, 110)), char, fill=random.choice(["#142957", "#c53c54", "#17815a"]), font=font)
@@ -341,17 +344,17 @@ elif selected_tab == "🔤 Hidden Word":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI's Turn</b><p>Can AI read through noise?</p>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI read through noise?</p></div>', unsafe_allow_html=True)
         if st.button("Ask AI to Read 🤖", key="w_ai", use_container_width=True):
             with st.spinner("AI reading..."):
                 ans, err = ask_groq_vision(st.session_state.word_image, "Read 4 characters hidden behind scribble lines. Return ONLY the 4 characters.")
-                if err: st.error(err)
+                if err: 
+                    st.error(err)
                 else:
                     st.info(f"AI Output: {ans}")
                     if st.session_state.word_text in ans.upper():
                         st.session_state.ai_score += 1
                         st.success("AI read correctly!")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 3. CLICK IN ORDER
@@ -366,8 +369,10 @@ elif selected_tab == "🔢 Click in Order":
         nums = [1, 2, 3, 4, 5]
         random.shuffle(nums)
         coords = [(60, 60), (220, 40), (120, 150), (280, 140), (50, 180)]
-        try: font = ImageFont.truetype("DejaVuSans-Bold.ttf", 36)
-        except: font = ImageFont.load_default()
+        try: 
+            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 36)
+        except: 
+            font = ImageFont.load_default()
         for idx, n in enumerate(nums):
             px, py = coords[idx]
             draw.rectangle([px, py, px+55, py+55], fill="#ffffff", outline="#153e8c", width=2)
@@ -403,17 +408,17 @@ elif selected_tab == "🔢 Click in Order":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI's Turn</b><p>Can AI find order?</p>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI find order?</p></div>', unsafe_allow_html=True)
         if st.button("Ask AI to Find Order 🤖", key="o_ai", use_container_width=True):
             with st.spinner("AI analyzing..."):
                 ans, err = ask_groq_vision(st.session_state.order_image, "List all numbers in ascending order separated by commas.")
-                if err: st.error(err)
+                if err: 
+                    st.error(err)
                 else:
                     st.info(f"AI Output: {ans}")
                     if "1,2,3,4,5" in ans.replace(" ", ""):
                         st.session_state.ai_score += 1
                         st.success("AI ordered correctly!")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 4. DON'T BE FOOLED
@@ -427,8 +432,10 @@ elif selected_tab == "😲 Don't Be Fooled":
         draw = ImageDraw.Draw(img)
         draw.ellipse([80, 70, 160, 150], fill="#c53c54")
         draw.rectangle([220, 70, 300, 150], fill="#153e8c")
-        try: font = ImageFont.truetype("DejaVuSans-Bold.ttf", 22)
-        except: font = ImageFont.load_default()
+        try: 
+            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 22)
+        except: 
+            font = ImageFont.load_default()
         draw.text((70, 180), "How many circles?", fill="#153e8c", font=font)
         return "1", img
 
@@ -453,13 +460,14 @@ elif selected_tab == "😲 Don't Be Fooled":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI's Turn</b><p>Will AI hallucinate shapes?</p>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Will AI hallucinate shapes?</p></div>', unsafe_allow_html=True)
         if st.button("Ask AI to Analyze 🤖", key="f_ai", use_container_width=True):
             with st.spinner("AI inspecting..."):
                 ans, err = ask_groq_vision(st.session_state.fool_image, "How many circles and how many squares are in this image?")
-                if err: st.error(err)
-                else: st.info(f"AI Output: {ans}")
-        st.markdown('</div>', unsafe_allow_html=True)
+                if err: 
+                    st.error(err)
+                else: 
+                    st.info(f"AI Output: {ans}")
 
 # =========================================================
 # 5. ANIMAL GRID
@@ -473,12 +481,15 @@ elif selected_tab == "🐾 Animal Grid":
         draw = ImageDraw.Draw(img)
         target = "★"
         actual = 0
-        try: font = ImageFont.truetype("DejaVuSans-Bold.ttf", 28)
-        except: font = ImageFont.load_default()
+        try: 
+            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 28)
+        except: 
+            font = ImageFont.load_default()
         for r in range(3):
             for c in range(4):
                 sym = random.choice(["★", "■", "▲", "●"])
-                if sym == target: actual += 1
+                if sym == target: 
+                    actual += 1
                 draw.text((60 + c*80, 40 + r*70), sym, fill="#153e8c", font=font)
         return actual, target, img
 
@@ -510,17 +521,17 @@ elif selected_tab == "🐾 Animal Grid":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI's Turn</b><p>Can AI count grid items?</p>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI count grid items?</p></div>', unsafe_allow_html=True)
         if st.button("Ask AI to Count Grid 🤖", key="g_ai", use_container_width=True):
             with st.spinner("AI counting..."):
                 ans, err = ask_groq_vision(st.session_state.animal_image, f"Count how many star symbols ('{st.session_state.animal_target}') are in this grid. Return count number.")
-                if err: st.error(err)
+                if err: 
+                    st.error(err)
                 else:
                     st.info(f"AI Output: {ans}")
                     if str(st.session_state.animal_count) in ans:
                         st.session_state.ai_score += 1
                         st.success("AI counted correctly!")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # 6. PATTERN FIXER
@@ -534,8 +545,10 @@ elif selected_tab == "🧩 Pattern Fixer":
         target = pat[0]
         img = Image.new("RGB", (420, 260), "#f8fafc")
         draw = ImageDraw.Draw(img)
-        try: font = ImageFont.truetype("DejaVuSans-Bold.ttf", 20)
-        except: font = ImageFont.load_default()
+        try: 
+            font = ImageFont.truetype("DejaVuSans-Bold.ttf", 20)
+        except: 
+            font = ImageFont.load_default()
         for idx, s in enumerate(pat + [target]):
             draw.rectangle([30 + idx*80, 60, 95 + idx*80, 125], fill="#ffffff", outline="#dce7f5", width=2)
             draw.text((45 + idx*80, 85), s[:3], fill="#153e8c", font=font)
@@ -569,17 +582,17 @@ elif selected_tab == "🧩 Pattern Fixer":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c2:
-        st.markdown('<div class="ai-box"><b>🤖 AI's Turn</b><p>Can AI solve sequence logic?</p>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-box"><b>🤖 AI\'s Turn</b><p>Can AI solve sequence logic?</p></div>', unsafe_allow_html=True)
         if st.button("Ask AI to Solve Pattern 🤖", key="p_ai", use_container_width=True):
             with st.spinner("AI analyzing pattern..."):
                 ans, err = ask_groq_vision(st.session_state.pattern_image, "What shape comes next in this repeating sequence? Return shape name.")
-                if err: st.error(err)
+                if err: 
+                    st.error(err)
                 else:
                     st.info(f"AI Output: {ans}")
                     if st.session_state.pattern_target.lower() in ans.lower():
                         st.session_state.ai_score += 1
                         st.success("AI solved pattern correctly!")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # FOOTER
