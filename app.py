@@ -115,7 +115,7 @@ st.markdown(
         backdrop-filter: blur(10px);
     }
 
-    /* --- PREMIUM VIBRANT BUTTONS STYLING --- */
+    /* --- REGULAR BUTTONS STYLING --- */
     .stButton > button {
         font-weight: 800 !important;
         border-radius: 14px !important;
@@ -133,39 +133,39 @@ st.markdown(
         background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* --- FORCED BOLD & LARGE RADIO BUTTON TABS --- */
+    /* --- MATCHING ACTIVITY RADIO BUTTONS TO BLUE BUTTON STYLE --- */
     div.row-widget.stRadio > div[role="radiogroup"] {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%) !important;
         padding: 25px 35px !important;
         border-radius: 24px !important;
-        border: 4px solid #f59e0b !important;
-        box-shadow: 0 15px 40px rgba(245, 158, 11, 0.3) !important;
+        border: 2px solid rgba(56, 189, 248, 0.3) !important;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5) !important;
         display: flex !important;
-        gap: 30px !important;
+        gap: 25px !important;
     }
     
     div.row-widget.stRadio label {
-        background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
-        padding: 18px 30px !important;
-        border-radius: 16px !important;
-        border: 3px solid #38bdf8 !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+        background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
+        padding: 16px 32px !important;
+        border-radius: 30px !important; /* Pill shape like the requested button */
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
         cursor: pointer !important;
         transition: all 0.3s ease-in-out !important;
     }
 
     div.row-widget.stRadio label:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 35px rgba(56, 189, 248, 0.6) !important;
-        background: linear-gradient(135deg, #0369a1 100%, #1e40af 0%) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.6) !important;
+        background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* Target inner text elements to force 36px bold white text */
+    /* Clear, bold white text matching the button style */
     div.row-widget.stRadio label p, 
     div.row-widget.stRadio label span,
     div.row-widget.stRadio div {
-        font-size: 36px !important;
-        font-weight: 900 !important;
+        font-size: 26px !important;
+        font-weight: 800 !important;
         color: #ffffff !important;
     }
 
