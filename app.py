@@ -133,36 +133,36 @@ st.markdown(
         background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important;
     }
 
-    /* --- HIGHLY VISIBLE & ATTRACTIVE ACTIVITY RADIO BUTTONS --- */
+    /* --- COMPACT & ATTRACTIVE ACTIVITY RADIO BUTTONS --- */
     div[data-testid="stRadio"] {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
-        padding: 25px 35px !important;
-        border-radius: 20px !important;
+        padding: 15px 25px !important;
+        border-radius: 16px !important;
         border: 2px solid #38bdf8 !important;
-        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25) !important;
+        box-shadow: 0 8px 25px rgba(56, 189, 248, 0.2) !important;
     }
 
     div[data-testid="stRadio"] label {
         background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%) !important;
-        padding: 14px 28px !important;
-        border-radius: 35px !important;
+        padding: 10px 20px !important;
+        border-radius: 25px !important;
         border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3) !important;
         cursor: pointer !important;
-        margin-right: 15px !important;
+        margin-right: 12px !important;
         transition: all 0.3s ease-in-out !important;
     }
 
     div[data-testid="stRadio"] label:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 10px 25px rgba(56, 189, 248, 0.6) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(56, 189, 248, 0.5) !important;
         background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%) !important;
     }
 
-    /* Target text inside radio buttons for bold clear view */
+    /* Slightly smaller text for a neat, balanced look */
     div[data-testid="stRadio"] label p,
     div[data-testid="stRadio"] label span {
-        font-size: 20px !important;
+        font-size: 16px !important;
         font-weight: 800 !important;
         color: #ffffff !important;
     }
